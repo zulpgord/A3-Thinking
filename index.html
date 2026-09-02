@@ -234,6 +234,61 @@ textarea{resize:vertical;min-height:64px}
 .sheet .foot{margin-top:7px;border-top:1px solid #DDE2DF;padding-top:4px;display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:8px;color:#8A948F;letter-spacing:.04em}
 
 .print-note{font-size:12.5px;color:var(--ink-3);margin:0 0 14px;max-width:80ch}
+
+/* ---------- guide ---------- */
+.g-hero{border-bottom:2px solid var(--ink);padding-bottom:16px;margin-bottom:18px}
+.g-hero .eyebrow{font-family:var(--f-mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.g-hero h2{font-size:30px;margin:5px 0 8px;max-width:20ch}
+.g-hero p{margin:0;color:var(--ink-2);max-width:66ch;font-size:15px}
+.toc{display:flex;flex-wrap:wrap;gap:6px;margin:16px 0 26px}
+.toc a{font-family:var(--f-mono);font-size:11px;letter-spacing:.04em;text-decoration:none;color:var(--ink-2);border:1px solid var(--line);background:var(--surface);border-radius:99px;padding:5px 11px}
+.toc a:hover{border-color:var(--accent);color:var(--accent)}
+.gsec{margin:0 0 34px;scroll-margin-top:80px}
+.gsec > h3{font-size:19px;padding-bottom:7px;border-bottom:1px solid var(--line);margin-bottom:14px;display:flex;align-items:baseline;gap:10px}
+.gsec > h3 i{font-style:normal;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);letter-spacing:.1em}
+.gsec p{max-width:68ch;color:var(--ink-2)}
+.gsec p.lede{color:var(--ink);font-size:15px}
+.gsec b.term{color:var(--ink)}
+.flow-chain{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin:16px 0}
+@media(max-width:720px){.flow-chain{grid-template-columns:1fr 1fr}}
+.flow-chain div{border:1px solid var(--line);border-top:3px solid var(--cc);border-radius:var(--r);padding:9px 11px;background:var(--surface)}
+.flow-chain div b{font-family:var(--f-disp);font-size:13px;color:var(--cc);display:block}
+.flow-chain div span{font-size:12px;color:var(--ink-2)}
+.waste{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin:14px 0}
+@media(max-width:880px){.waste{grid-template-columns:1fr 1fr}}
+.waste div{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:8px 10px}
+.waste div b{display:block;font-family:var(--f-disp);font-size:12.5px}
+.waste div span{font-size:11.5px;color:var(--ink-3)}
+.tools-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:880px){.tools-grid{grid-template-columns:1fr}}
+.tool{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;display:flex;flex-direction:column}
+.tool > header{padding:10px 13px 9px;border-bottom:1px solid var(--line-soft);background:var(--surface-2)}
+.tool > header .ph{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.08em;text-transform:uppercase;color:#fff;background:var(--ph);border-radius:3px;padding:2px 6px}
+.tool > header h4{font-size:15px;margin-top:6px}
+.tool > header .sub{font-size:12px;color:var(--ink-3);margin-top:2px}
+.tool .in{padding:11px 13px 13px;display:flex;flex-direction:column;gap:9px;flex:1}
+.tool dt{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);margin-bottom:2px}
+.tool dd{margin:0;font-size:13px;color:var(--ink-2)}
+.tool dd ol,.tool dd ul{margin:0;padding-left:17px}
+.tool dd li{margin:2px 0}
+.tool .trap{border-left:3px solid var(--warn);padding-left:9px}
+.tool .trap dd{color:var(--ink)}
+.tool .out{margin-top:auto;border-top:1px dashed var(--line);padding-top:8px;font-size:12px;color:var(--ink-3)}
+.agenda{width:100%;border-collapse:collapse;margin-top:10px}
+.agenda th,.agenda td{border-bottom:1px solid var(--line-soft);padding:7px 9px;text-align:left;vertical-align:top}
+.agenda th{font-family:var(--f-mono);font-size:10px;letter-spacing:.07em;text-transform:uppercase;color:var(--ink-3);font-weight:400}
+.agenda td:first-child{font-family:var(--f-mono);font-size:12px;color:var(--ink-3);white-space:nowrap;width:96px}
+.agenda td b{font-family:var(--f-disp)}
+.glos{display:grid;grid-template-columns:repeat(2,1fr);gap:2px 18px}
+@media(max-width:720px){.glos{grid-template-columns:1fr}}
+.glos div{display:grid;grid-template-columns:78px 1fr;gap:9px;padding:5px 0;border-bottom:1px solid var(--line-soft)}
+.glos code{font-family:var(--f-mono);font-size:11.5px;color:var(--accent)}
+.glos span{font-size:12.5px;color:var(--ink-2)}
+.rules{counter-reset:r;list-style:none;padding:0;margin:12px 0 0;display:grid;grid-template-columns:1fr 1fr;gap:10px 20px}
+@media(max-width:720px){.rules{grid-template-columns:1fr}}
+.rules li{counter-increment:r;position:relative;padding-left:30px;color:var(--ink-2);font-size:13.5px}
+.rules li::before{content:counter(r,decimal-leading-zero);position:absolute;left:0;top:1px;font-family:var(--f-mono);font-size:11px;color:var(--accent)}
+.rules li b{color:var(--ink)}
 @media print{
   @page{size:A3 landscape;margin:7mm}
   .no-print{display:none !important}
@@ -254,6 +309,7 @@ textarea{resize:vertical;min-height:64px}
         <button id="langIt" data-act="lang" data-v="it" aria-pressed="true">IT</button>
         <button id="langEn" data-act="lang" data-v="en" aria-pressed="false">EN</button>
       </div>
+      <button class="btn ghost" data-act="go" data-v="guide" id="btnGuide">Guida</button>
       <button class="btn ghost" data-act="theme" title="Light / dark">◐</button>
       <button class="btn ghost" data-act="export" id="btnExport" style="display:none">Backup</button>
       <button class="btn ghost" data-act="import" id="btnImport">Load</button>
@@ -712,6 +768,198 @@ function viewControl(){
   return h + gate("control");
 }
 
+/* ============================ guide ============================ */
+function toolCard(o){
+  return '<article class="tool" style="--ph:'+o.c+'"><header><span class="ph">'+esc(o.ph)+'</span><h4>'+esc(L(o.n))+'</h4>'+
+    '<div class="sub">'+esc(L(o.s))+'</div></header><div class="in">'+
+    '<div><dt>'+L({it:"A cosa serve",en:"What it is for"})+'</dt><dd>'+esc(L(o.what))+'</dd></div>'+
+    '<div><dt>'+L({it:"Come si fa",en:"How to run it"})+'</dt><dd><ol>'+L(o.how).map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ol></dd></div>'+
+    '<div class="trap"><dt>'+L({it:"Errore che lo rende inutile",en:"The mistake that wastes it"})+'</dt><dd>'+esc(L(o.trap))+'</dd></div>'+
+    '<div class="out"><b>'+L({it:"Nell'A3",en:"On the A3"})+':</b> '+esc(L(o.out))+'</div>'+
+    '</div></article>';
+}
+function viewGuide(){
+  var toc = [
+    ["g-method", {it:"Il metodo",en:"The method"}],
+    ["g-lean",   {it:"Fondamentali lean",en:"Lean fundamentals"}],
+    ["g-tools",  {it:"Gli strumenti",en:"The tools"}],
+    ["g-run",    {it:"Condurre la sessione",en:"Running the session"}],
+    ["g-a3",     {it:"Presentare l'A3",en:"Presenting the A3"}],
+    ["g-glos",   {it:"Glossario",en:"Glossary"}]
+  ];
+  var h = '<div class="g-hero"><div class="eyebrow">'+L({it:"Guida · Lean problem solving",en:"Guide · Lean problem solving"})+'</div>'+
+    '<h2>'+L({it:"Perché questi strumenti, in quest'ordine",en:"Why these tools, in this order"})+'</h2>'+
+    '<p>'+L({it:"Il DMAIC non è una modulistica da riempire: è una sequenza che impedisce l'errore più costoso del problem solving, cioè saltare alla soluzione. Questa pagina spiega cosa fa ogni strumento, come condurlo con il team e quale errore lo rende inutile.",
+      en:"DMAIC is not paperwork to fill in: it is a sequence that blocks the most expensive mistake in problem solving — jumping to the solution. This page explains what each tool does, how to run it with the team, and the mistake that makes it worthless."})+'</p></div>';
+  h += '<div class="toc no-print">'+toc.map(function(t){return '<a href="#'+t[0]+'" data-act="jump" data-v="'+t[0]+'">'+esc(L(t[1]))+'</a>';}).join("")+
+    '<button class="btn" data-act="print" style="padding:4px 11px;font-size:11px;font-family:var(--f-mono)">'+L({it:"Stampa la guida",en:"Print the guide"})+'</button></div>';
+
+  /* --- method --- */
+  h += '<section class="gsec" id="g-method"><h3>'+L({it:"Il metodo",en:"The method"})+'<i>PDCA → DMAIC</i></h3>'+
+    '<p class="lede">'+L({it:"Il DMAIC è la versione strutturata e misurabile del ciclo di Deming. Le cinque fasi non sono capitoli di una relazione: sono cinque momenti in cui il team decide se ha capito abbastanza per proseguire.",
+      en:"DMAIC is the structured, measurable form of the Deming cycle. The five phases are not chapters of a report: they are five moments where the team decides whether it understands enough to move on."})+'</p>'+
+    '<div class="flow-chain">'+
+    [["PLAN","Define + Measure + Analyze",{it:"Capire il problema e le sue cause prima di toccare qualsiasi cosa. È la parte lunga, ed è normale che lo sia.",en:"Understand the problem and its causes before touching anything. It is the long part, and it is meant to be."},"var(--p1)"],
+     ["DO","Improve",{it:"Implementare le contromisure scelte, in piccolo e in fretta, per verificarle sul campo.",en:"Implement the chosen countermeasures, small and fast, to test them on the floor."},"var(--p4)"],
+     ["CHECK","Control",{it:"Misurare l'effetto reale con lo stesso indicatore usato in Define. Senza questo, non sai se hai risolto.",en:"Measure the real effect with the same indicator used in Define. Without this you do not know whether you fixed it."},"var(--p5)"],
+     ["ACT",{it:"Standard",en:"Standard"},{it:"Rendere il nuovo modo lo standard, e portare l'apprendimento in altre aree.",en:"Make the new way the standard, and carry the learning to other areas."},"var(--p2)"]]
+    .map(function(x){return '<div style="--cc:'+x[3]+'"><b>'+(typeof x[0]==="string"?x[0]:L(x[0]))+'</b>'+
+      '<span style="display:block;font-family:var(--f-mono);font-size:10px;color:var(--ink-3);margin:2px 0 4px">'+(typeof x[1]==="string"?x[1]:L(x[1]))+'</span>'+
+      '<span>'+esc(L(x[2]))+'</span></div>';}).join("")+'</div>'+
+    '<p>'+L({it:"Regola pratica: se in una riunione qualcuno propone una soluzione mentre siete ancora in Define o Measure, annotala su un foglio a parte («parcheggio») e riprendila in Improve. Non discuterla adesso: la valuterete quando saprete quale causa deve aggredire.",
+      en:"Practical rule: if someone proposes a solution while you are still in Define or Measure, park it on a separate sheet and pick it up in Improve. Do not debate it now: you will judge it once you know which cause it has to attack."})+'</p></section>';
+
+  /* --- lean --- */
+  h += '<section class="gsec" id="g-lean"><h3>'+L({it:"Fondamentali lean",en:"Lean fundamentals"})+'<i>'+L({it:"il perché sotto gli strumenti",en:"the why beneath the tools"})+'</i></h3>'+
+    '<p class="lede">'+L({it:"Ogni strumento di questa app esiste per una ragione lean precisa. Tre idee ne spiegano quasi tutte.",en:"Every tool in this app exists for a precise lean reason. Three ideas explain nearly all of them."})+'</p>'+
+    '<p><b class="term">'+L({it:"1. Valore e spreco.",en:"1. Value and waste."})+'</b> '+
+      L({it:"Il valore lo definisce il cliente, non chi esegue il processo. Tutto ciò che il cliente non pagherebbe è spreco (muda). Mappare il processo serve a rendere lo spreco visibile: è quasi sempre nei passaggi di mano, non dentro le singole attività.",
+        en:"Value is defined by the customer, not by whoever runs the process. Anything the customer would not pay for is waste (muda). Mapping the process makes waste visible: it almost always sits in the hand-offs, not inside the individual tasks."})+'</p>'+
+    '<div class="waste">'+[
+      [{it:"Trasporti",en:"Transport"},{it:"movimenti di materiale non necessari",en:"unnecessary material movement"}],
+      [{it:"Scorte",en:"Inventory"},{it:"materiale, ordini o pratiche in attesa",en:"material, orders or files waiting"}],
+      [{it:"Movimenti",en:"Motion"},{it:"spostamenti della persona senza valore",en:"non-value movement of the person"}],
+      [{it:"Attese",en:"Waiting"},{it:"il pezzo o la pratica ferma",en:"the part or the file standing still"}],
+      [{it:"Sovrapproduzione",en:"Overproduction"},{it:"fare prima o più del necessario",en:"making earlier or more than needed"}],
+      [{it:"Sovraprocesso",en:"Overprocessing"},{it:"lavorazioni o controlli inutili",en:"work or checks that add nothing"}],
+      [{it:"Difetti",en:"Defects"},{it:"rilavorazioni, scarti, reclami",en:"rework, scrap, complaints"}],
+      [{it:"Competenze",en:"Skills"},{it:"idee di chi fa il lavoro, non usate",en:"the ideas of the people doing the work, unused"}]
+    ].map(function(w){return '<div><b>'+esc(L(w[0]))+'</b><span>'+esc(L(w[1]))+'</span></div>';}).join("")+'</div>'+
+    '<p><b class="term">'+L({it:"2. Gemba: i fatti stanno dove si lavora.",en:"2. Gemba: the facts live where the work happens."})+'</b> '+
+      L({it:"Nessun dato raccolto in sala riunioni vale quanto mezz'ora passata a guardare il processo. Vai, osserva, conta, chiedi «mostrami» invece di «raccontami». Le cause che emergono in ufficio sono opinioni; quelle che emergono al gemba sono osservazioni.",
+        en:"No data gathered in a meeting room is worth half an hour spent watching the process. Go, observe, count, ask “show me” rather than “tell me”. Causes that surface in the office are opinions; causes that surface at the gemba are observations."})+'</p>'+
+    '<p><b class="term">'+L({it:"3. Senza standard non c'è miglioramento.",en:"3. No standard, no improvement."})+'</b> '+
+      L({it:"Se il lavoro si svolge in cinque modi diversi non c'è una linea di partenza da cui migliorare, e ogni contromisura si dissolve nel giro di settimane. Per questo la fase Control non è burocrazia: è l'unica parte che rende permanente il risultato.",
+        en:"If the work runs five different ways there is no baseline to improve from, and every countermeasure dissolves within weeks. That is why Control is not bureaucracy: it is the only part that makes the result permanent."})+'</p>'+
+    '<p>'+L({it:"E un principio di comportamento: attacca il processo, non le persone. Se un'analisi arriva a «l'operatore ha sbagliato», l'analisi non è finita — chiediti perché il processo ha permesso l'errore.",
+      en:"And one behavioural principle: attack the process, not the people. If an analysis lands on “the operator made a mistake”, the analysis is not finished — ask why the process allowed the mistake."})+'</p></section>';
+
+  /* --- tools --- */
+  var T = [
+    {c:"var(--p1)", ph:"Define · Step 1A", n:{it:"5W2H",en:"5W2H"}, s:{it:"Sette domande per delimitare il fenomeno",en:"Seven questions to bound the phenomenon"},
+      what:{it:"Trasformare una lamentela generica in un problema circoscritto, con luogo, momento, frequenza e ampiezza. È la base su cui poggia tutto il resto dell'A3.",en:"Turn a vague complaint into a bounded problem with place, time, frequency and size. Everything else in the A3 rests on it."},
+      how:{it:["Rispondi alle sette domande con il team, una alla volta, ad alta voce.","Per ogni risposta chiedi: «da quale dato lo sappiamo?»","Se una casella resta vuota, non inventarla: è un dato da andare a raccogliere.","Chiudi con Where/When/How many, che sono le tre che restringono davvero lo scopo."],
+        en:["Answer the seven questions with the team, one at a time, out loud.","For each answer ask: “what data tells us that?”","If a box stays empty, do not invent it: it is data you must go and collect.","Close on Where/When/How many — the three that genuinely narrow the scope."]},
+      trap:{it:"Infilare la causa dentro la descrizione («per colpa del fornitore»). Da quel momento il team smette di cercare e comincia a difendere una tesi.",en:"Smuggling a cause into the description (“because of the supplier”). From that moment the team stops searching and starts defending a thesis."},
+      out:{it:"Tabella 5W2H nella colonna 1.",en:"5W2H table in column 1."}},
+    {c:"var(--p1)", ph:"Define · Step 1B", n:{it:"Problem statement",en:"Problem statement"}, s:{it:"Stato attuale → stato futuro, con una data",en:"Current state → future state, with a date"},
+      what:{it:"Fissare la misura del successo prima di iniziare. È la frase che lo sponsor userà per dire se l'A3 è chiuso.",en:"Fix the measure of success before you start. It is the sentence a sponsor uses to say whether the A3 is closed."},
+      how:{it:["Scrivi lo stato attuale con l'indicatore e il valore di oggi.","Scrivi lo stato futuro con lo stesso indicatore, un valore target e una data.","Verifica che il target sia ambizioso ma raggiungibile: metà del gap è un buon punto di partenza.","Nessuna causa e nessuna soluzione dentro questa frase."],
+        en:["Write the current state with the indicator and today's value.","Write the future state with the same indicator, a target value and a date.","Check the target is ambitious but reachable: half the gap is a good starting point.","No cause and no solution inside this sentence."]},
+      trap:{it:"Target senza data, o indicatore diverso da quello con cui misurerai in Control: renderebbe impossibile dimostrare il risultato.",en:"A target with no date, or an indicator different from the one you will measure in Control: it makes the result impossible to prove."},
+      out:{it:"Casella gialla in fondo alla colonna 1.",en:"Yellow box at the foot of column 1."}},
+    {c:"var(--p2)", ph:"Measure · Step 2A", n:{it:"Mappa a 5 macro-fasi",en:"5-step process map"}, s:{it:"Il processo in una riga, dall'innesco alla consegna",en:"The process in one line, from trigger to delivery"},
+      what:{it:"Dare al team un linguaggio comune sul processo e stabilire i confini dell'analisi. Cinque riquadri obbligano a scegliere cosa conta.",en:"Give the team a shared language for the process and set the boundaries of the analysis. Five boxes force you to choose what matters."},
+      how:{it:["Definisci l'innesco (cosa fa partire il processo) e l'uscita (cosa riceve il cliente).","Descrivi ogni fase con verbo + oggetto: «prelevare componenti», non «magazzino».","Se ti servono più di cinque riquadri, il tuo scopo è troppo largo: restringi.","Fallo camminando il processo, non a memoria."],
+        en:["Define the trigger (what starts the process) and the output (what the customer receives).","Describe each step as verb + object: “pick components”, not “warehouse”.","If you need more than five boxes your scope is too wide: narrow it.","Do it by walking the process, not from memory."]},
+      trap:{it:"Disegnare il processo come dovrebbe essere. Il processo ideale non contiene i problemi che stai cercando.",en:"Drawing the process as it should be. The ideal process does not contain the problems you are looking for."},
+      out:{it:"Catena di cinque riquadri, colonna 1.",en:"Chain of five boxes, column 1."}},
+    {c:"var(--p2)", ph:"Measure · Step 2B", n:{it:"Swimlane",en:"Swimlane"}, s:{it:"Chi fa cosa, e dove passa di mano",en:"Who does what, and where it changes hands"},
+      what:{it:"Rendere visibili i passaggi tra funzioni. La maggior parte dei difetti e delle attese nasce lì, non dentro le attività di un singolo reparto.",en:"Make the hand-offs between functions visible. Most defects and waiting are born there, not inside any single department's tasks."},
+      how:{it:["Una riga per reparto, una colonna per ciascuna macro-fase.","Compila solo le celle in cui quel reparto agisce davvero: i vuoti sono informazione.","Segna dove il flusso cambia riga: ogni cambio è un punto di rischio.","Chiedi a chi lavora in quella riga se si riconosce nella mappa."],
+        en:["One row per department, one column per main step.","Fill only the cells where that department actually acts: the blanks are information.","Mark where the flow changes row: every change is a risk point.","Ask the people in that row whether they recognise themselves in the map."]},
+      trap:{it:"Aggiungere una riga per ogni persona invece che per ogni funzione: la mappa diventa un organigramma e smette di mostrare il flusso.",en:"Adding a row per person instead of per function: the map becomes an org chart and stops showing the flow."},
+      out:{it:"Tabella reparto × fase, colonna 1.",en:"Department × step table, column 1."}},
+    {c:"var(--p2)", ph:"Measure · Step 2C", n:{it:"Ishikawa (6M)",en:"Fishbone (6M)"}, s:{it:"Raccogliere tutte le cause candidate",en:"Collect every candidate cause"},
+      what:{it:"Allargare il campo prima di stringere. Le sei categorie servono a impedire che il team resti fermo sull'unica causa a cui pensava già.",en:"Widen before you narrow. The six categories stop the team from circling the one cause it already had in mind."},
+      how:{it:["Scrivi l'effetto (il problema riscritto) sulla testa del pesce.","Gira le sei categorie una per una: Persone, Macchine, Metodo, Materiali, Misura, Ambiente.","Raccogli senza discutere e senza filtrare: la valutazione viene dopo.","Se una categoria resta vuota, insisti: di solito è quella dove nessuno ha ancora guardato."],
+        en:["Write the effect (the restated problem) on the fish head.","Work the six categories one by one: People, Machine, Method, Material, Measurement, Environment.","Collect without debating and without filtering: judgement comes later.","If a category stays empty, push: it is usually the one nobody has looked at yet."]},
+      trap:{it:"Confondere causa e sintomo. «Il cliente si lamenta» è un sintomo; «i codici simili non si distinguono a scaffale» è una causa.",en:"Mixing cause and symptom. “The customer complains” is a symptom; “similar codes are indistinguishable on the shelf” is a cause."},
+      out:{it:"Diagramma a lisca di pesce, colonna 2.",en:"Fishbone diagram, column 2."}},
+    {c:"var(--p2)", ph:"Measure · Step 2D", n:{it:"Dotmocracy",en:"Dotmocracy"}, s:{it:"Ridurre a tre senza discussioni infinite",en:"Narrow to three without endless debate"},
+      what:{it:"Convergere in pochi minuti usando l'esperienza di tutti, compresa quella di chi non parla volentieri in riunione.",en:"Converge in minutes using everyone's experience, including the people who do not enjoy speaking up."},
+      how:{it:["Ogni partecipante ha tre voti, assegnabili anche tutti alla stessa causa.","Si vota in silenzio e contemporaneamente, per non farsi influenzare.","Conta i voti e prendi le prime tre cause: diventano PC1, PC2, PC3.","Se il quarto risultato è a un voto dal terzo, discutine: il voto orienta, non decide."],
+        en:["Each participant gets three votes, all three may go on one cause.","Vote silently and simultaneously, so nobody is anchored.","Count the votes and take the top three: they become PC1, PC2, PC3.","If the fourth is one vote behind the third, discuss it: the vote guides, it does not decide."]},
+      trap:{it:"Votare prima di aver finito di raccogliere: si premia l'ultima causa detta o quella proposta dalla persona più autorevole.",en:"Voting before collection is finished: you reward the last cause mentioned, or the one proposed by the most senior voice."},
+      out:{it:"Riga PC1-PC3 sotto l'Ishikawa.",en:"PC1-PC3 row under the fishbone."}},
+    {c:"var(--p3)", ph:"Analyze · Step 3A", n:{it:"5 Perché",en:"5 Whys"}, s:{it:"Dal sintomo al livello dove puoi agire",en:"From symptom to the level where you can act"},
+      what:{it:"Scendere sotto la superficie. Una contromisura applicata al primo perché tampona; applicata alla causa radice impedisce il ritorno del problema.",en:"Get below the surface. A countermeasure on the first why patches; on the root cause it stops the problem from returning."},
+      how:{it:["Parti dalla causa potenziale, non dal problema generale.","Ogni risposta deve essere verificabile con un fatto; se è un'ipotesi, segnala che va confermata.","Continua finché la risposta riguarda un processo, una regola o un sistema di misura.","Rileggi la catena al contrario con «quindi»: se regge, la radice è quella."],
+        en:["Start from the potential cause, not the general problem.","Every answer must be checkable against a fact; if it is a hypothesis, flag it for confirmation.","Keep going until the answer is about a process, a rule or a measurement system.","Read the chain back up with “therefore”: if it holds, that is your root."]},
+      trap:{it:"Fermarsi a «manca formazione». Quasi sempre il perché successivo è «non esiste uno standard da insegnare», che è azionabile davvero.",en:"Stopping at “lack of training”. The next why is nearly always “there is no standard to teach”, which is genuinely actionable."},
+      out:{it:"Tre colonne di perché + tre root cause, colonna 2.",en:"Three why columns + three root causes, column 2."}},
+    {c:"var(--p4)", ph:"Improve · Step 4B", n:{it:"Matrice Benefit / Effort",en:"Benefit / Effort matrix"}, s:{it:"Scegliere con criterio, non per preferenza",en:"Choose by criteria, not by preference"},
+      what:{it:"Rendere esplicito il compromesso tra impatto e sforzo, così che la scelta sia del team e non della persona più insistente.",en:"Make the impact-versus-effort trade-off explicit, so the choice belongs to the team and not to the most insistent voice."},
+      how:{it:["Valuta l'impatto sulla causa radice, non sul problema in generale.","Valuta lo sforzo includendo costo, tempo e resistenza organizzativa.","Punteggia con il team: le due scale sono relative al vostro contesto, non assolute.","Parti dai Quick Wins per costruire credibilità, poi affronta un Major Project."],
+        en:["Score impact against the root cause, not against the problem in general.","Score effort including cost, time and organisational resistance.","Score with the team: both scales are relative to your context, not absolute.","Start with Quick Wins to build credibility, then take on one Major Project."]},
+      trap:{it:"Riempire il quadrante Time Wasters e implementarlo comunque perché «era già stato deciso».",en:"Filling the Time Wasters quadrant and implementing it anyway because “it was already decided”."},
+      out:{it:"Matrice con le bolle PS1-PS5 + BS1-BS3, colonna 3.",en:"Matrix with PS1-PS5 bubbles + BS1-BS3, column 3."}},
+    {c:"var(--p4)", ph:"Improve · Step 4D", n:{it:"Piano d'azione",en:"Action plan"}, s:{it:"Azione, owner, data — nient'altro",en:"Action, owner, due date — nothing else"},
+      what:{it:"Trasformare le contromisure in impegni verificabili. È la parte dell'A3 che si guarda nelle riunioni di avanzamento.",en:"Turn countermeasures into checkable commitments. It is the part of the A3 you look at in progress reviews."},
+      how:{it:["Una riga per azione, con un verbo che descrive un risultato osservabile.","Un solo owner per riga: una persona, non un reparto.","Data reale, concordata con chi la esegue, non con chi la assegna.","Cinque azioni bastano: se ne servono quindici, hai più di un A3."],
+        en:["One row per action, with a verb describing an observable result.","One owner per row: a person, not a department.","A real date, agreed with the person doing it, not with the person assigning it.","Five actions are enough: if you need fifteen, you have more than one A3."]},
+      trap:{it:"Azioni che dipendono dalla buona volontà («fare più attenzione», «sensibilizzare»): non sono contromisure, sono speranze.",en:"Actions that rely on goodwill (“be more careful”, “raise awareness”): those are not countermeasures, they are hopes."},
+      out:{it:"Tabella A1-A5, colonna 3.",en:"A1-A5 table, column 3."}},
+    {c:"var(--p5)", ph:"Control · Step 5", n:{it:"Standard e follow-up",en:"Standard & follow-up"}, s:{it:"Impedire il ritorno silenzioso al vecchio modo",en:"Stop the quiet drift back to the old way"},
+      what:{it:"Consolidare il risultato: documento aggiornato, persone formate, un indicatore visibile e un proprietario che non sei tu.",en:"Lock in the result: updated document, trained people, a visible indicator and an owner who is not you."},
+      how:{it:["Aggiorna l'istruzione operativa o lo standard prima di chiudere l'A3.","Forma chi lavora sul processo, tutti i turni compresi.","Metti l'indicatore sul visual board del reparto, non in una cartella.","Fissa due follow-up: uno a qualche settimana, uno di chiusura con il dato che dimostra il risultato."],
+        en:["Update the work instruction or standard before closing the A3.","Train the people on the process, every shift included.","Put the indicator on the department's visual board, not in a folder.","Set two follow-ups: one after a few weeks, one closing with the figure that proves the result."]},
+      trap:{it:"Chiudere l'A3 il giorno dell'ultima azione, senza misurare l'effetto: non saprai mai se ha funzionato o se è stato un caso.",en:"Closing the A3 the day the last action is done, with no measurement: you will never know whether it worked or was luck."},
+      out:{it:"Tabella follow-up, in fondo alla colonna 3.",en:"Follow-up table, foot of column 3."}}
+  ];
+  h += '<section class="gsec" id="g-tools"><h3>'+L({it:"Gli strumenti",en:"The tools"})+'<i>'+T.length+' '+L({it:"schede",en:"cards"})+'</i></h3>'+
+    '<div class="tools-grid">'+T.map(toolCard).join("")+'</div></section>';
+
+  /* --- running the session --- */
+  h += '<section class="gsec" id="g-run"><h3>'+L({it:"Condurre la sessione",en:"Running the session"})+'<i>'+L({it:"il ruolo del facilitatore",en:"the facilitator's job"})+'</i></h3>'+
+    '<p class="lede">'+L({it:"Il facilitatore non porta le risposte: porta le domande e il ritmo. Il contenuto è del team, che conosce il processo meglio di chiunque altro.",
+      en:"The facilitator does not bring the answers: they bring the questions and the pace. The content belongs to the team, who know the process better than anyone."})+'</p>'+
+    '<ol class="rules">'+[
+      {it:"<b>Team giusto:</b> chi fa il lavoro, chi lo riceve, chi può decidere. Quattro-sei persone, non dodici.",en:"<b>The right team:</b> whoever does the work, whoever receives it, whoever can decide. Four to six people, not twelve."},
+      {it:"<b>Sessioni corte e ravvicinate:</b> due ore per fase battono una giornata intera ogni due mesi.",en:"<b>Short, frequent sessions:</b> two hours per phase beats a full day every other month."},
+      {it:"<b>Parcheggio visibile:</b> un foglio per le soluzioni proposte fuori tempo, così nessuno si sente ignorato.",en:"<b>A visible parking lot:</b> a sheet for solutions proposed out of sequence, so nobody feels ignored."},
+      {it:"<b>Chiedi il dato, non l'opinione:</b> «come lo sappiamo?» è la domanda che usi più spesso.",en:"<b>Ask for the data, not the opinion:</b> “how do we know?” is the question you use most."},
+      {it:"<b>Fai parlare per ultimo chi ha più gradi:</b> altrimenti il resto della stanza si allinea e smette di pensare.",en:"<b>Let the most senior person speak last:</b> otherwise the room aligns and stops thinking."},
+      {it:"<b>Chiudi ogni sessione con chi fa cosa entro quando,</b> anche se sono solo dati da raccogliere.",en:"<b>Close every session with who does what by when,</b> even if it is only data to collect."}
+    ].map(function(x){return "<li>"+L(x)+"</li>";}).join("")+'</ol>'+
+    '<h4 style="font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:24px 0 0">'+L({it:"Agenda tipo di un A3",en:"Typical A3 schedule"})+'</h4>'+
+    '<table class="agenda"><tr><th>'+L({it:"Durata",en:"Length"})+'</th><th>'+L({it:"Sessione",en:"Session"})+'</th><th>'+L({it:"Cosa esce",en:"What comes out"})+'</th></tr>'+
+    [["2 h",{it:"Define",en:"Define"},{it:"5W2H completo e problema riscritto con target e data",en:"Full 5W2H and a restated problem with target and date"}],
+     ["½ "+L({it:"giornata",en:"day"}),{it:"Gemba + Measure",en:"Gemba + Measure"},{it:"Mappa a 5 fasi, swimlane, Ishikawa, PC1-PC3 votate",en:"5-step map, swimlane, fishbone, PC1-PC3 voted"}],
+     ["2 h",{it:"Analyze",en:"Analyze"},{it:"Tre catene di perché e tre root cause verificate",en:"Three why chains and three verified root causes"}],
+     ["2 h",{it:"Improve",en:"Improve"},{it:"Soluzioni valutate, BS1-BS3 e piano azioni con owner",en:"Scored solutions, BS1-BS3 and an action plan with owners"}],
+     ["1 h",{it:"Control + review",en:"Control + review"},{it:"Standard, formazione, due follow-up datati, A3 presentato",en:"Standard, training, two dated follow-ups, A3 presented"}]]
+    .map(function(r){return '<tr><td>'+esc(typeof r[0]==="string"?r[0]:L(r[0]))+'</td><td><b>'+esc(L(r[1]))+'</b></td><td>'+esc(L(r[2]))+'</td></tr>';}).join("")+'</table>'+
+    '<p style="margin-top:12px">'+L({it:"Tra una sessione e l'altra lascia il tempo di andare a prendere i dati mancanti: è lì che l'A3 diventa serio.",en:"Leave time between sessions to go and fetch the missing data: that is where the A3 becomes serious."})+'</p></section>';
+
+  /* --- presenting --- */
+  h += '<section class="gsec" id="g-a3"><h3>'+L({it:"Presentare l'A3",en:"Presenting the A3"})+'<i>'+L({it:"cinque minuti, una pagina",en:"five minutes, one page"})+'</i></h3>'+
+    '<p class="lede">'+L({it:"L'A3 nasce dal formato di un foglio: se il ragionamento non ci sta in una pagina, non è ancora abbastanza chiaro. Si legge da sinistra a destra come una storia.",
+      en:"The A3 comes from a paper size: if the reasoning does not fit on one page, it is not yet clear enough. It reads left to right, as a story."})+'</p>'+
+    '<ol class="rules">'+[
+      {it:"<b>Il problema</b> — leggi la casella gialla: stato attuale, stato futuro, data. Trenta secondi.",en:"<b>The problem</b> — read the yellow box: current state, future state, date. Thirty seconds."},
+      {it:"<b>Il processo</b> — mostra dove nel flusso si manifesta. Un minuto.",en:"<b>The process</b> — show where in the flow it shows up. One minute."},
+      {it:"<b>Le cause</b> — le tre radici e come ci sei arrivato. Un minuto e mezzo.",en:"<b>The causes</b> — the three roots and how you got there. A minute and a half."},
+      {it:"<b>Le contromisure</b> — le tre scelte e perché proprio quelle. Un minuto.",en:"<b>The countermeasures</b> — the three chosen and why those. One minute."},
+      {it:"<b>La richiesta</b> — cosa serve dallo sponsor e quando ci rivediamo. Trenta secondi.",en:"<b>The ask</b> — what you need from the sponsor and when you meet again. Thirty seconds."}
+    ].map(function(x){return "<li>"+L(x)+"</li>";}).join("")+'</ol>'+
+    '<p style="margin-top:14px">'+L({it:"Se lo sponsor interrompe per chiedere «e i dati?», la fase Measure non era finita. Se chiede «perché non avete provato X?», X andava messa tra le soluzioni potenziali e scartata a vista, con il suo punteggio.",
+      en:"If the sponsor interrupts to ask “where is the data?”, Measure was not finished. If they ask “why did you not try X?”, X belonged in the potential solutions and should have been visibly rejected, with its score."})+'</p></section>';
+
+  /* --- glossary --- */
+  h += '<section class="gsec" id="g-glos"><h3>'+L({it:"Glossario",en:"Glossary"})+'<i>'+L({it:"sigle usate nell'A3",en:"acronyms used on the A3"})+'</i></h3>'+
+    '<div class="glos">'+[
+      ["DMAIC",{it:"Define, Measure, Analyze, Improve, Control",en:"Define, Measure, Analyze, Improve, Control"}],
+      ["PDCA",{it:"Plan-Do-Check-Act, il ciclo da cui deriva il DMAIC",en:"Plan-Do-Check-Act, the cycle DMAIC derives from"}],
+      ["A3",{it:"Formato di foglio (297×420 mm) e metodo di sintesi su una pagina",en:"A paper size (297×420 mm) and a one-page thinking method"}],
+      ["PC1-PC3",{it:"Potential Causes: le tre cause votate in Measure",en:"Potential Causes: the three causes voted in Measure"}],
+      ["PS1-PS5",{it:"Potential Solutions: le soluzioni candidate in Improve",en:"Potential Solutions: the candidate solutions in Improve"}],
+      ["BS1-BS3",{it:"Best Solutions: le tre selezionate dopo la matrice",en:"Best Solutions: the three picked after the matrix"}],
+      ["A1-A5",{it:"Le azioni del piano di miglioramento",en:"The improvement plan actions"}],
+      ["SQDC",{it:"Safety, Quality, Delivery, Cost: la priorità del progetto",en:"Safety, Quality, Delivery, Cost: the project priority"}],
+      ["L/T",{it:"Lead time: durata prevista del progetto",en:"Lead time: expected project duration"}],
+      ["STW",{it:"Settimana di calendario (standard week)",en:"Standard calendar week"}],
+      ["Gemba",{it:"Il luogo reale dove si svolge il lavoro",en:"The real place where the work happens"}],
+      ["Muda",{it:"Spreco: attività che non aggiunge valore per il cliente",en:"Waste: activity that adds no value for the customer"}],
+      ["6M",{it:"Le categorie dell'Ishikawa: persone, macchine, metodo, materiali, misura, ambiente",en:"Fishbone categories: people, machine, method, material, measurement, environment"}],
+      ["Poka-yoke",{it:"Dispositivo che rende l'errore impossibile, non solo improbabile",en:"A device that makes the error impossible, not merely unlikely"}]
+    ].map(function(g){return '<div><code>'+esc(g[0])+'</code><span>'+esc(L(g[1]))+'</span></div>';}).join("")+'</div></section>';
+
+  h += '<div class="nav-foot no-print"><button class="btn" data-act="go" data-v="home">← '+L({it:"Progetto",en:"Project"})+'</button>'+
+    '<button class="btn primary" data-act="go" data-v="define">'+L({it:"Vai a Define",en:"Go to Define"})+' →</button></div>';
+  return h;
+}
+
 /* ============================ A3 report ============================ */
 function box(v, cls){ v = String(v||"").trim(); return '<div class="box '+(cls||"")+'">'+(v?nl(v):'<span class="empty">—</span>')+'</div>'; }
 function fishSVG(){
@@ -832,7 +1080,7 @@ function viewReport(){
 /* ============================ render + events ============================ */
 function render(){
   var v = document.getElementById("view");
-  var map = {home:viewHome, define:viewDefine, measure:viewMeasure, analyze:viewAnalyze, improve:viewImprove, control:viewControl, report:viewReport};
+  var map = {home:viewHome, define:viewDefine, measure:viewMeasure, analyze:viewAnalyze, improve:viewImprove, control:viewControl, report:viewReport, guide:viewGuide};
   v.innerHTML = (map[current] || viewHome)();
   renderStepper();
   document.getElementById("langIt").setAttribute("aria-pressed", LANG==="it");
@@ -841,6 +1089,11 @@ function render(){
   document.getElementById("btnExport").textContent = L({it:"Backup",en:"Backup"});
   document.getElementById("btnImport").textContent = L({it:"Carica",en:"Load"});
   document.getElementById("btnReset").textContent = L({it:"Nuovo",en:"New"});
+  var bg = document.getElementById("btnGuide");
+  bg.textContent = L({it:"Guida",en:"Guide"});
+  bg.setAttribute("aria-current", current==="guide");
+  bg.style.color = current==="guide" ? "var(--accent)" : "";
+  bg.style.borderColor = current==="guide" ? "var(--accent)" : "";
   document.getElementById("brandSub").textContent = L({it:"DMAIC · Problem solving guidato",en:"DMAIC · guided problem solving"});
   window.scrollTo({top:0,behavior:"instant"});
 }
@@ -857,6 +1110,12 @@ document.addEventListener("input", function(e){
 document.addEventListener("click", function(e){
   var b = e.target.closest("[data-act]"); if(!b) return;
   var act = b.dataset.act, v = b.dataset.v;
+  if(act==="jump"){
+    e.preventDefault();
+    var el = document.getElementById(v);
+    if(el) el.scrollIntoView({behavior:"smooth", block:"start"});
+    return;
+  }
   if(act==="go"){ current = v; render(); }
   else if(act==="lang"){ LANG = v; save(); render(); }
   else if(act==="theme"){
