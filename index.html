@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<meta name="description" content="App guidata stage-and-gate per il problem solving DMAIC: cinque fasi con strumenti Lean e report A3 stampabile generato in automatico.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%8E%AF%3C/text%3E%3C/svg%3E">
+<title>A3 Problem Solving Navigator</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+:root{
+  --ground:#F4F6F4; --surface:#FFFFFF; --surface-2:#EDF0EE; --line:#D3D9D5; --line-soft:#E4E8E5;
+  --ink:#1A2321; --ink-2:#4C5A55; --ink-3:#77857F;
+  --accent:#0E6E63; --accent-soft:#DDEDE9;
+  --p1:#35618F; --p2:#1F7A6B; --p3:#A8761F; --p4:#B4552D; --p5:#4B5D67;
+  --ok:#2E7D50; --warn:#B4552D; --field:#FFFFFF; --field-line:#C7CFCA;
+  --shadow:0 1px 2px rgba(26,35,33,.06), 0 8px 24px -18px rgba(26,35,33,.35);
+  --r:6px;
+  --f-disp:"Archivo","Helvetica Neue",Arial,sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",monospace;
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:#121719; --surface:#1A2124; --surface-2:#212A2D; --line:#33403F; --line-soft:#28322F;
+    --ink:#E7EDEA; --ink-2:#A8B5B0; --ink-3:#7C8A85;
+    --accent:#4FBFAF; --accent-soft:#173733;
+    --p1:#79A6D2; --p2:#5FC0AC; --p3:#DCB05C; --p4:#E28A5F; --p5:#93A6B0;
+    --ok:#63C08B; --warn:#E28A5F; --field:#151C1E; --field-line:#3B4A47;
+    --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.8);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:#121719; --surface:#1A2124; --surface-2:#212A2D; --line:#33403F; --line-soft:#28322F;
+  --ink:#E7EDEA; --ink-2:#A8B5B0; --ink-3:#7C8A85;
+  --accent:#4FBFAF; --accent-soft:#173733;
+  --p1:#79A6D2; --p2:#5FC0AC; --p3:#DCB05C; --p4:#E28A5F; --p5:#93A6B0;
+  --ok:#63C08B; --warn:#E28A5F; --field:#151C1E; --field-line:#3B4A47;
+  --shadow:0 1px 2px rgba(0,0,0,.4), 0 10px 28px -20px rgba(0,0,0,.8);
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--ground);color:var(--ink);font-family:var(--f-body);font-size:14px;line-height:1.5;-webkit-font-smoothing:antialiased}
+h1,h2,h3,h4{font-family:var(--f-disp);margin:0;text-wrap:balance;letter-spacing:-.01em}
+button{font:inherit;color:inherit}
+input,textarea,select{font:inherit;color:var(--ink);background:var(--field);border:1px solid var(--field-line);border-radius:4px;padding:6px 8px;width:100%}
+input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:1px}
+textarea{resize:vertical;min-height:64px}
+
+/* ---------- chrome ---------- */
+.wrap{max-width:1180px;margin:0 auto;padding:0 20px 72px}
+.top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
+.top-in{max-width:1180px;margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.brand{display:flex;align-items:baseline;gap:10px;margin-right:auto}
+.brand b{font-family:var(--f-disp);font-weight:700;font-size:17px;letter-spacing:-.02em}
+.brand span{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);text-transform:uppercase;letter-spacing:.08em}
+.tools{display:flex;gap:6px;align-items:center;flex-wrap:wrap}
+.btn{background:var(--surface);border:1px solid var(--line);border-radius:4px;padding:6px 11px;cursor:pointer;font-size:13px;display:inline-flex;align-items:center;gap:6px}
+.btn:hover{border-color:var(--accent);color:var(--accent)}
+.btn.primary{background:var(--accent);border-color:var(--accent);color:#fff}
+.btn.primary:hover{filter:brightness(1.08);color:#fff}
+.btn.ghost{background:transparent}
+.seg{display:flex;border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.seg button{background:var(--surface);border:0;padding:6px 10px;cursor:pointer;font-family:var(--f-mono);font-size:11px;letter-spacing:.06em}
+.seg button[aria-pressed="true"]{background:var(--accent);color:#fff}
+
+/* ---------- stepper ---------- */
+.stepper{display:grid;grid-template-columns:repeat(6,1fr);gap:8px;margin:18px 0 22px}
+.step{position:relative;background:var(--surface);border:1px solid var(--line);border-radius:var(--r);padding:10px 12px 11px;cursor:pointer;text-align:left;display:flex;flex-direction:column;gap:7px;overflow:hidden}
+.step:hover{border-color:var(--ink-3)}
+.step[aria-current="true"]{border-color:var(--ph);box-shadow:var(--shadow)}
+.step .rail{position:absolute;left:0;top:0;bottom:0;width:3px;background:var(--ph)}
+.step .idx{font-family:var(--f-mono);font-size:10px;letter-spacing:.1em;color:var(--ink-3)}
+.step .nm{font-family:var(--f-disp);font-weight:600;font-size:14px;line-height:1.15;color:var(--ph)}
+.step .bar{height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.step .bar i{display:block;height:100%;background:var(--ph);border-radius:2px;transition:width .3s}
+.step .pct{font-family:var(--f-mono);font-size:10px;color:var(--ink-3)}
+@media(max-width:820px){.stepper{grid-template-columns:repeat(3,1fr)}}
+@media(max-width:520px){.stepper{grid-template-columns:repeat(2,1fr)}}
+
+/* ---------- panels ---------- */
+.phase-head{display:flex;align-items:flex-start;gap:14px;margin-bottom:14px}
+.phase-num{font-family:var(--f-disp);font-weight:700;font-size:34px;line-height:.9;color:var(--ph);font-variant-numeric:tabular-nums}
+.phase-head h2{font-size:24px;color:var(--ph)}
+.phase-head p{margin:4px 0 0;color:var(--ink-2);max-width:62ch}
+.dates{margin-left:auto;display:flex;gap:8px;flex:0 0 auto}
+.dates label{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3);display:block;text-transform:uppercase}
+.dates div{width:130px}
+
+.coach{background:var(--surface);border:1px solid var(--line-soft);border-left:3px solid var(--ph);border-radius:var(--r);padding:14px 16px;margin-bottom:20px}
+.coach h4{font-size:12px;text-transform:uppercase;letter-spacing:.1em;color:var(--ph);margin-bottom:8px;font-family:var(--f-mono);font-weight:500}
+.coach ul{margin:0;padding-left:18px;color:var(--ink-2)}
+.coach li{margin:3px 0}
+.coach .cols{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:720px){.coach .cols{grid-template-columns:1fr}}
+
+.card{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:16px 18px 18px;margin-bottom:16px}
+.card > h3{font-size:15px;display:flex;align-items:center;gap:9px;margin-bottom:3px}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;background:var(--ph);color:#fff;padding:2px 6px;border-radius:3px;flex:0 0 auto}
+.hint{color:var(--ink-3);font-size:12.5px;margin:0 0 12px;max-width:70ch}
+.grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
+@media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
+.f label{display:block;font-family:var(--f-mono);font-size:10.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);margin-bottom:3px}
+.f{margin-bottom:10px}
+.f .sub{font-size:11.5px;color:var(--ink-3);margin-top:3px;font-family:var(--f-body);text-transform:none;letter-spacing:0}
+
+/* 5W2H */
+.w5{display:grid;grid-template-columns:190px 1fr;gap:1px;background:var(--line-soft);border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden}
+.w5 .k{background:var(--surface-2);padding:9px 11px;font-size:13px;display:flex;align-items:center}
+.w5 .k b{font-weight:600}
+.w5 .v{background:var(--surface);padding:5px}
+.w5 .v input,.w5 .v textarea{border:0;background:transparent;padding:5px 7px}
+@media(max-width:640px){.w5{grid-template-columns:1fr}.w5 .k{padding-bottom:2px}}
+
+/* process steps */
+.pflow{display:grid;grid-template-columns:repeat(5,1fr);gap:10px}
+.pflow .pstep{position:relative}
+.pflow .pstep b{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);display:block;margin-bottom:3px}
+@media(max-width:720px){.pflow{grid-template-columns:1fr 1fr}}
+
+/* lanes */
+.lane{display:grid;grid-template-columns:170px 1fr 30px;gap:8px;align-items:start;margin-bottom:8px}
+.lane .cells{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+@media(max-width:720px){.lane{grid-template-columns:1fr}.lane .cells{grid-template-columns:1fr 1fr}}
+
+/* fishbone editor */
+.fb{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px}
+@media(max-width:900px){.fb{grid-template-columns:1fr 1fr}}
+@media(max-width:600px){.fb{grid-template-columns:1fr}}
+.cat{border:1px solid var(--line-soft);border-radius:var(--r);overflow:hidden;background:var(--surface)}
+.cat > header{background:var(--surface-2);padding:7px 10px;font-family:var(--f-disp);font-weight:600;font-size:12.5px;display:flex;justify-content:space-between;align-items:center;border-bottom:1px solid var(--line-soft)}
+.cat > header span{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);font-weight:400}
+.cat .body{padding:8px 9px 10px;display:flex;flex-direction:column;gap:6px}
+.cause{display:grid;grid-template-columns:1fr auto auto auto;gap:5px;align-items:center}
+.cause input{padding:5px 7px;font-size:13px}
+.cause.sel input{border-color:var(--p3);background:color-mix(in srgb,var(--p3) 12%,var(--field))}
+.mini{background:var(--surface-2);border:1px solid var(--line);border-radius:3px;width:26px;height:26px;display:grid;place-items:center;cursor:pointer;font-family:var(--f-mono);font-size:12px;padding:0;flex:0 0 auto}
+.mini:hover{border-color:var(--accent);color:var(--accent)}
+.mini.dot{width:auto;padding:0 8px;gap:4px}
+.mini.on{background:var(--p3);border-color:var(--p3);color:#fff}
+.votes{font-family:var(--f-mono);font-size:11px;color:var(--ink-3);min-width:26px;text-align:center}
+.addrow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px}
+
+/* 5 whys */
+.why{border:1px solid var(--line-soft);border-radius:var(--r);background:var(--surface);overflow:hidden}
+.why > header{padding:8px 11px;background:var(--surface-2);border-bottom:1px solid var(--line-soft)}
+.why > header .lbl{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;color:var(--ink-3)}
+.why > header .txt{font-weight:600;font-size:13px}
+.why .steps{padding:9px 10px;display:flex;flex-direction:column;gap:7px}
+.why .wl{display:grid;grid-template-columns:34px 1fr;gap:7px;align-items:center}
+.why .wl span{font-family:var(--f-mono);font-size:10px;color:var(--ink-3);text-align:right}
+.why .root{padding:9px 10px;border-top:1px dashed var(--line);background:color-mix(in srgb,var(--p3) 8%,var(--surface))}
+
+/* solutions + matrix */
+.sol{display:grid;grid-template-columns:44px 1fr 132px 132px 34px;gap:9px;align-items:center;margin-bottom:8px}
+.sol .id{font-family:var(--f-mono);font-size:12px;background:var(--p4);color:#fff;border-radius:3px;padding:5px 0;text-align:center}
+.sol .sl label{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-3);display:flex;justify-content:space-between}
+.sol input[type=range]{width:100%;accent-color:var(--p4);padding:0;border:0;background:transparent}
+@media(max-width:820px){.sol{grid-template-columns:44px 1fr 34px;grid-template-areas:"id txt pin" ". a a" ". b b"}.sol .id{grid-area:id}.sol .tx{grid-area:txt}.sol .pin{grid-area:pin}.sol .sl:nth-of-type(1){grid-area:a}.sol .sl:nth-of-type(2){grid-area:b}}
+.matrix-wrap{display:grid;grid-template-columns:1fr 300px;gap:18px;align-items:start}
+@media(max-width:820px){.matrix-wrap{grid-template-columns:1fr}}
+.acts{display:grid;grid-template-columns:42px 1fr 150px 120px 110px;gap:8px;align-items:center;margin-bottom:7px}
+.acts .id{font-family:var(--f-mono);font-size:12px;background:var(--surface-2);border:1px solid var(--line);border-radius:3px;padding:5px 0;text-align:center}
+.acts .hd{font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3)}
+@media(max-width:820px){.acts{grid-template-columns:42px 1fr;gap:6px}.acts .hd{display:none}}
+
+/* control */
+.ctrl-row{display:grid;grid-template-columns:1fr 110px 120px 130px;gap:8px;align-items:center;margin-bottom:7px}
+@media(max-width:720px){.ctrl-row{grid-template-columns:1fr 1fr}}
+.pill{font-family:var(--f-mono);font-size:10.5px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);display:inline-block}
+.pill.done{background:color-mix(in srgb,var(--ok) 16%,transparent);border-color:var(--ok);color:var(--ok)}
+.pill.open{background:color-mix(in srgb,var(--warn) 14%,transparent);border-color:var(--warn);color:var(--warn)}
+
+/* gate */
+.gate{border:1px dashed var(--line);border-radius:var(--r);padding:13px 15px;background:var(--surface);display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin-top:6px}
+.gate .g-main{flex:1 1 320px}
+.gate h4{font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:7px}
+.gate ul{margin:0;padding-left:17px;color:var(--ink-2);font-size:13px}
+.gate li.ok{color:var(--ok);list-style:"✓  "}
+.gate li.miss{list-style:"•  "}
+.nav-foot{display:flex;justify-content:space-between;gap:10px;margin-top:22px}
+
+/* meta bar */
+.meta{background:var(--surface);border:1px solid var(--line-soft);border-radius:var(--r);padding:14px 16px;margin-bottom:18px}
+.meta .row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px}
+@media(max-width:820px){.meta .row{grid-template-columns:1fr 1fr}}
+.sqdc{display:flex;gap:4px}
+.sqdc button{flex:1;border:1px solid var(--line);background:var(--surface);border-radius:3px;padding:6px 0;cursor:pointer;font-family:var(--f-mono);font-size:12px}
+.sqdc button[aria-pressed="true"]{color:#fff;border-color:transparent}
+.sqdc button[data-v="S"][aria-pressed="true"]{background:#C0392B}
+.sqdc button[data-v="Q"][aria-pressed="true"]{background:#1E8449}
+.sqdc button[data-v="D"][aria-pressed="true"]{background:#2471A3}
+.sqdc button[data-v="C"][aria-pressed="true"]{background:#B7950B}
+
+/* ---------- A3 sheet ---------- */
+.sheet-scroll{overflow-x:auto;padding-bottom:10px}
+.sheet{width:1360px;background:#fff;color:#15201E;border:1px solid #C9CFCB;padding:12px 14px 14px;font-size:9.5px;line-height:1.32;font-family:var(--f-body)}
+.sheet *{box-sizing:border-box}
+.sheet .s-head{display:grid;grid-template-columns:250px 1fr 1fr 300px;gap:10px;align-items:center;border-bottom:2px solid #15201E;padding-bottom:7px;margin-bottom:9px}
+.sheet .s-title{font-family:var(--f-disp);font-weight:700;font-size:16px;letter-spacing:-.01em;line-height:1.1}
+.sheet .s-title small{display:block;font-family:var(--f-mono);font-weight:400;font-size:9px;letter-spacing:.1em;color:#5B6763;text-transform:uppercase;margin-top:2px}
+.sheet .kv{display:grid;grid-template-columns:auto 1fr;gap:3px 7px;font-size:9.5px}
+.sheet .kv dt{font-family:var(--f-mono);font-size:8.5px;letter-spacing:.05em;text-transform:uppercase;color:#5B6763;align-self:center}
+.sheet .kv dd{margin:0;border-bottom:1px solid #DDE2DF;min-height:12px}
+.sheet .s-sqdc{display:flex;gap:3px;justify-content:flex-end}
+.sheet .s-sqdc i{font-style:normal;font-family:var(--f-mono);font-size:10px;width:26px;text-align:center;border:1px solid #C9CFCB;color:#8A948F;border-radius:2px}
+.sheet .s-sqdc i.on{color:#fff;border-color:transparent}
+.sheet .s-sqdc i.on[data-v="S"]{background:#C0392B}.sheet .s-sqdc i.on[data-v="Q"]{background:#1E8449}
+.sheet .s-sqdc i.on[data-v="D"]{background:#2471A3}.sheet .s-sqdc i.on[data-v="C"]{background:#B7950B}
+.sheet .cols{display:grid;grid-template-columns:1fr 1fr 1fr;gap:9px}
+.sheet .blk{border:1px solid #C9CFCB;margin-bottom:8px;break-inside:avoid}
+.sheet .blk > h5{margin:0;font-family:var(--f-disp);font-size:12px;letter-spacing:.02em;padding:4px 7px;color:#fff;display:flex;align-items:center;gap:7px}
+.sheet .blk > h5 em{font-style:normal;margin-left:auto;font-family:var(--f-mono);font-size:8.5px;font-weight:400;opacity:.9}
+.sheet .blk .in{padding:6px 7px 7px}
+.sheet .st{font-family:var(--f-mono);font-size:8.5px;color:#A8562A;letter-spacing:.02em;margin:6px 0 3px;display:block}
+.sheet .st:first-child{margin-top:0}
+.sheet .box{border:1px solid #DDE2DF;padding:4px 6px;min-height:15px;background:#FBFCFB}
+.sheet .box.hi{background:#FFF9DB;border-color:#E2D9A8}
+.sheet table{width:100%;border-collapse:collapse;font-size:9.5px;font-family:var(--f-body)}
+.sheet td,.sheet th{border:1px solid #DDE2DF;padding:2.5px 5px;vertical-align:top;text-align:left;font-weight:400;font-size:9.5px}
+.sheet th{background:#F1F4F2;font-family:var(--f-mono);font-size:8px;letter-spacing:.05em;text-transform:uppercase;color:#5B6763}
+.sheet td.k{font-size:9.5px}
+.sheet td.k{background:#F7F9F8;font-weight:600;width:34%}
+.sheet .idc{font-family:var(--f-mono);font-size:8.5px;background:#2B3634;color:#fff;text-align:center;width:26px}
+.sheet .flow{display:grid;grid-template-columns:repeat(5,1fr);gap:4px;align-items:stretch}
+.sheet .flow div{border:1px solid #2B3634;border-radius:4px;padding:3px 4px;min-height:30px;font-size:8.5px;position:relative}
+.sheet .flow div::after{content:"›";position:absolute;right:-6px;top:50%;transform:translateY(-50%);color:#2B3634;font-size:11px}
+.sheet .flow div:last-child::after{content:""}
+.sheet .empty{color:#A9B2AE;font-style:italic}
+.sheet svg{display:block;width:100%;height:auto}
+.sheet .foot{margin-top:7px;border-top:1px solid #DDE2DF;padding-top:4px;display:flex;justify-content:space-between;font-family:var(--f-mono);font-size:8px;color:#8A948F;letter-spacing:.04em}
+
+.print-note{font-size:12.5px;color:var(--ink-3);margin:0 0 14px;max-width:80ch}
+@media print{
+  @page{size:A3 landscape;margin:7mm}
+  .no-print{display:none !important}
+  body{background:#fff}
+  .wrap{max-width:none;padding:0}
+  .sheet-scroll{overflow:visible}
+  .sheet{width:100%;border:0;padding:0;font-size:9px}
+}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important}}
+</style>
+</head>
+<body>
+<div class="top no-print">
+  <div class="top-in">
+    <div class="brand"><b>A3 Navigator</b><span id="brandSub">DMAIC · Problem Solving</span></div>
+    <div class="tools">
+      <div class="seg" role="group" aria-label="Language">
+        <button id="langIt" data-act="lang" data-v="it" aria-pressed="true">IT</button>
+        <button id="langEn" data-act="lang" data-v="en" aria-pressed="false">EN</button>
+      </div>
+      <button class="btn ghost" data-act="theme" title="Light / dark">◐</button>
+      <button class="btn ghost" data-act="export" id="btnExport" style="display:none">Backup</button>
+      <button class="btn ghost" data-act="import" id="btnImport">Load</button>
+      <button class="btn ghost" data-act="reset" id="btnReset">New</button>
+      <button class="btn primary" data-act="go" data-v="report" id="btnA3">A3</button>
+    </div>
+  </div>
+</div>
+
+<div class="wrap">
+  <nav class="stepper no-print" id="stepper"></nav>
+  <main id="view"></main>
+</div>
+<input type="file" id="fileIn" accept="application/json" style="display:none">
+
+<script>
+"use strict";
+/* ============================ i18n ============================ */
+var LANG = "it";
+function L(o){ return o[LANG] !== undefined ? o[LANG] : o.en; }
+function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
+function nl(s){ return esc(s).replace(/\n/g,"<br>"); }
+
+/* ============================ model ============================ */
+var PHASES = [
+  {key:"define",  n:1, color:"var(--p1)", name:{it:"Define",  en:"Define"}},
+  {key:"measure", n:2, color:"var(--p2)", name:{it:"Measure", en:"Measure"}},
+  {key:"analyze", n:3, color:"var(--p3)", name:{it:"Analyze", en:"Analyze"}},
+  {key:"improve", n:4, color:"var(--p4)", name:{it:"Improve", en:"Improve"}},
+  {key:"control", n:5, color:"var(--p5)", name:{it:"Control", en:"Control"}}
+];
+var CATS = [
+  {it:"Persone",   en:"People"},
+  {it:"Macchine",  en:"Machine"},
+  {it:"Metodo",    en:"Method"},
+  {it:"Materiali", en:"Material"},
+  {it:"Misura",    en:"Measurement"},
+  {it:"Ambiente",  en:"Environment"}
+];
+function blank(){
+  return {
+    v:1, lang:"it", demo:false,
+    meta:{title:"",date:"",team:"",dept:"",leader:"",priority:"",prp:"",lt:"",stw:""},
+    dates:{define:{s:"",f:""},measure:{s:"",f:""},analyze:{s:"",f:""},improve:{s:"",f:""},control:{s:"",f:""}},
+    define:{initial:"",w:{why:"",where:"",who:"",what:"",when:"",how:"",many:""},restated:""},
+    measure:{steps:["","","","",""],lanes:[{d:"",c:["","","","",""]},{d:"",c:["","","","",""]},{d:"",c:["","","","",""]}],
+      cats:CATS.map(function(){return {causes:[]};}), picks:["","",""]},
+    analyze:{chains:[0,1,2].map(function(){return {cause:"",whys:["","","","",""],root:""};})},
+    improve:{sols:[1,2,3,4,5].map(function(i){return {t:"",impact:5,effort:5,pick:false};}),
+      actions:[1,2,3,4,5].map(function(){return {t:"",o:"",d:""};})},
+    control:{rows:[
+      {k:{it:"1° riunione di follow-up",en:"1st follow-up meeting"},w:"",o:"",done:false},
+      {k:{it:"Modifiche implementate",en:"Changes implemented"},w:"",o:"",done:false},
+      {k:{it:"Standard nuovo / aggiornato",en:"New / updated standard"},w:"",o:"",done:false},
+      {k:{it:"Formazione erogata",en:"Training conducted"},w:"",o:"",done:false},
+      {k:{it:"2° riunione di follow-up (chiusura)",en:"2nd follow-up meeting (closing)"},w:"",o:"",done:false}
+    ]}
+  };
+}
+function demo(){
+  var s = blank(); s.demo = true;
+  s.meta = {title:"Errori di picking kit guarnizioni – linea ricambi",date:"2026-09-02",team:"Warehouse / Planning / Quality",
+    dept:"Operations – Monza",leader:"OD / ALPS",priority:"Q",prp:"PRP-2026-014",lt:"12 wk",stw:"STW 36"};
+  s.dates.define={s:"2026-09-02",f:"2026-09-09"}; s.dates.measure={s:"2026-09-09",f:"2026-09-23"};
+  s.define.initial="Nel Q2 il 6,4% delle spedizioni di kit guarnizioni è partito con almeno un codice errato o mancante, generando 38 reclami cliente e 21 rispedizioni urgenti.";
+  s.define.w={why:"Genera reclami, rispedizioni urgenti e costi di trasporto extra (≈ 14 k€ nel trimestre)",
+    where:"Magazzino ricambi Monza, area picking kit",who:"Clienti after-market, customer service, magazzino",
+    what:"Codici errati o mancanti nei kit guarnizioni spediti",when:"Da gennaio 2026, picco nei turni pomeridiani",
+    how:"Reclami cliente registrati in CRM + note di rispedizione",many:"6,4% delle righe (38 reclami su 594 spedizioni)"};
+  s.define.restated="Stato attuale: 6,4% di righe errate sui kit guarnizioni. Stato futuro: ≤ 1,5% entro fine novembre 2026, senza aumento del lead time di picking.";
+  s.measure.steps=["Ricezione ordine","Stampa lista di prelievo","Prelievo componenti","Controllo kit","Imballo e spedizione"];
+  s.measure.lanes=[{d:"Customer service",c:["Riceve ordine","","","","Comunica al cliente"]},
+    {d:"Magazzino",c:["","Stampa lista","Preleva","Imballa",""]},
+    {d:"Qualità",c:["","","","Controllo a campione",""]}];
+  var seed=[[{t:"Turnover alto nei picker stagionali",v:5},{t:"Formazione non standardizzata",v:3}],
+    [{t:"Terminale RF con lettura intermittente",v:2}],
+    [{t:"Nessun controllo 100% sui kit multi-codice",v:6},{t:"Lista di prelievo non ordinata per ubicazione",v:4}],
+    [{t:"Codici simili senza differenza visiva",v:7}],
+    [{t:"Errori rilevati solo dal cliente, non a bordo linea",v:4}],
+    [{t:"Illuminazione bassa nella corsia G",v:1}]];
+  s.measure.cats = CATS.map(function(c,i){ return {causes:(seed[i]||[]).map(function(x){return {t:x.t,v:x.v};})}; });
+  s.measure.picks=["Codici simili senza differenza visiva","Nessun controllo 100% sui kit multi-codice","Turnover alto nei picker stagionali"];
+  s.analyze.chains=[
+    {cause:"Codici simili senza differenza visiva",whys:["Le etichette mostrano solo il codice numerico","Il layout etichetta è quello standard ERP","Nessuno ha definito un requisito di leggibilità per i ricambi","L'etichettatura non è mai stata inclusa nel processo di introduzione nuovo codice",""],root:"Il processo di introduzione di un nuovo codice non prevede un requisito di identificazione visiva a magazzino"},
+    {cause:"Nessun controllo 100% sui kit multi-codice",whys:["Il controllo è a campione sul 10%","Il controllo 100% è stato tolto per ridurre il tempo ciclo","Il tempo ciclo era il KPI dominante del reparto","Non esiste un KPI di qualità del picking",""],root:"Il sistema di KPI del magazzino premia la velocità senza contrappeso di qualità"},
+    {cause:"Turnover alto nei picker stagionali",whys:["I picker stagionali restano in media 3 mesi","La formazione dura mezza giornata ed è affidata al collega di turno","Non esiste uno standard di addestramento scritto","",""],root:"Manca uno standard di addestramento per il picking dei kit"}];
+  s.improve.sols=[
+    {t:"Etichetta ubicazione con codice colore per famiglia guarnizione",impact:8,effort:3,pick:true},
+    {t:"Controllo 100% con scansione barcode sui kit multi-codice",impact:9,effort:6,pick:true},
+    {t:"Standard di addestramento picking + affiancamento 3 giorni",impact:7,effort:4,pick:true},
+    {t:"Riordino lista di prelievo per percorso di ubicazione",impact:5,effort:7,pick:false},
+    {t:"Nuovo terminale RF per tutta l'area",impact:4,effort:9,pick:false}];
+  s.improve.actions=[
+    {t:"Definire codice colore famiglie e stampare nuove etichette corsia G-H",o:"Warehouse sup.",d:"2026-10-03"},
+    {t:"Configurare scansione obbligatoria a fine kit sul WMS",o:"IT / Logistica",d:"2026-10-17"},
+    {t:"Scrivere lo standard di addestramento picking (1 pagina + check)",o:"OD / ALPS",d:"2026-10-10"},
+    {t:"Formare i 9 picker sul nuovo standard",o:"Warehouse sup.",d:"2026-10-31"},
+    {t:"Aggiungere KPI qualità picking al visual board di reparto",o:"OD / ALPS",d:"2026-11-07"}];
+  s.control.rows[0].w="STW 45"; s.control.rows[0].o="Team"; s.control.rows[0].done=true;
+  s.control.rows[1].w="STW 46"; s.control.rows[1].o="Warehouse sup.";
+  s.control.rows[2].w="STW 47"; s.control.rows[2].o="OD / ALPS";
+  s.control.rows[3].w="STW 47"; s.control.rows[3].o="Warehouse sup.";
+  s.control.rows[4].w="STW 50"; s.control.rows[4].o="Sponsor";
+  return s;
+}
+var KEY = "a3nav.v1";
+var S = blank(), current = "home";
+function save(){ try{ S.lang = LANG; localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
+function load(){
+  try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); if(o && o.meta){ S = o; if(o.lang) LANG = o.lang; return true; } } }catch(e){}
+  return false;
+}
+
+/* ============================ helpers ============================ */
+function get(path){ var p = path.split("."), o = S; for(var i=0;i<p.length;i++){ if(o==null) return ""; o = o[p[i]]; } return o==null?"":o; }
+function set(path, val){ var p = path.split("."), o = S; for(var i=0;i<p.length-1;i++){ o = o[p[i]]; } o[p[p.length-1]] = val; }
+function inp(path, ph, type){ return '<input type="'+(type||"text")+'" data-path="'+path+'" value="'+esc(get(path))+'"'+(ph?' placeholder="'+esc(ph)+'"':"")+'>'; }
+function ta(path, ph, rows){ return '<textarea data-path="'+path+'" rows="'+(rows||3)+'"'+(ph?' placeholder="'+esc(ph)+'"':"")+'>'+esc(get(path))+'</textarea>'; }
+function fld(label, path, ph, sub){ return '<div class="f"><label>'+esc(label)+'</label>'+inp(path,ph)+(sub?'<div class="sub">'+esc(sub)+'</div>':"")+'</div>'; }
+function filled(v){ return String(v||"").trim().length>0; }
+
+/* ============================ progress ============================ */
+function checks(k){
+  var c = [];
+  if(k==="define"){
+    c.push([L({it:"Problema iniziale descritto",en:"Initial problem stated"}), filled(S.define.initial)]);
+    var w = S.define.w, n = ["why","where","who","what","when","how","many"].filter(function(x){return filled(w[x]);}).length;
+    c.push([L({it:"5W2H completo (",en:"5W2H complete ("})+n+"/7)", n>=7]);
+    c.push([L({it:"Problema riscritto con stato attuale e futuro",en:"Problem restated with current & future state"}), filled(S.define.restated)]);
+  }
+  if(k==="measure"){
+    c.push([L({it:"5 macro-fasi del processo",en:"5 main process steps"}), S.measure.steps.filter(filled).length>=5]);
+    c.push([L({it:"Swimlane: almeno 2 reparti mappati",en:"Swimlane: at least 2 lanes mapped"}), S.measure.lanes.filter(function(l){return filled(l.d);}).length>=2]);
+    var tot = S.measure.cats.reduce(function(a,c2){return a+c2.causes.filter(function(x){return filled(x.t);}).length;},0);
+    c.push([L({it:"Almeno 6 cause nell'Ishikawa (",en:"At least 6 causes on the fishbone ("})+tot+")", tot>=6]);
+    c.push([L({it:"3 cause potenziali selezionate (dotmocracy)",en:"Top 3 potential causes selected (dotmocracy)"}), S.measure.picks.filter(filled).length>=3]);
+  }
+  if(k==="analyze"){
+    S.analyze.chains.forEach(function(ch,i){
+      c.push(["PC"+(i+1)+" – "+L({it:"almeno 3 perché",en:"at least 3 whys"}), ch.whys.filter(filled).length>=3]);
+    });
+    c.push([L({it:"3 root cause formulate",en:"3 root causes formulated"}), S.analyze.chains.filter(function(ch){return filled(ch.root);}).length>=3]);
+  }
+  if(k==="improve"){
+    c.push([L({it:"Almeno 3 soluzioni potenziali",en:"At least 3 potential solutions"}), S.improve.sols.filter(function(s){return filled(s.t);}).length>=3]);
+    c.push([L({it:"3 soluzioni selezionate (BS1-3)",en:"3 solutions selected (BS1-3)"}), S.improve.sols.filter(function(s){return s.pick && filled(s.t);}).length===3]);
+    var a = S.improve.actions.filter(function(x){return filled(x.t)&&filled(x.o)&&filled(x.d);}).length;
+    c.push([L({it:"Azioni con owner e data (",en:"Actions with owner & due date ("})+a+")", a>=3]);
+  }
+  if(k==="control"){
+    c.push([L({it:"Date/settimane pianificate",en:"Weeks planned"}), S.control.rows.filter(function(r){return filled(r.w);}).length>=4]);
+    c.push([L({it:"Standard nuovo/aggiornato definito",en:"New/updated standard defined"}), filled(S.control.rows[2].o)]);
+    c.push([L({it:"Chiusura pianificata",en:"Closure planned"}), filled(S.control.rows[4].w)]);
+  }
+  return c;
+}
+function pct(k){ var c = checks(k); if(!c.length) return 0; return Math.round(100*c.filter(function(x){return x[1];}).length/c.length); }
+function overall(){ return Math.round(PHASES.reduce(function(a,p){return a+pct(p.key);},0)/PHASES.length); }
+
+/* ============================ stepper ============================ */
+function renderStepper(){
+  var h = PHASES.map(function(p){
+    var v = pct(p.key);
+    return '<button class="step" style="--ph:'+p.color+'" data-act="go" data-v="'+p.key+'" aria-current="'+(current===p.key)+'">'+
+      '<i class="rail"></i>'+
+      '<span class="idx">'+L({it:"FASE",en:"PHASE"})+' '+p.n+'</span>'+
+      '<span class="nm">'+L(p.name)+'</span>'+
+      '<span class="bar"><i style="width:'+v+'%"></i></span>'+
+      '<span class="pct">'+v+'%</span></button>';
+  }).join("");
+  h += '<button class="step" style="--ph:var(--accent)" data-act="go" data-v="report" aria-current="'+(current==="report")+'">'+
+    '<i class="rail"></i><span class="idx">'+L({it:"OUTPUT",en:"OUTPUT"})+'</span>'+
+    '<span class="nm">'+L({it:"Report A3",en:"A3 Report"})+'</span>'+
+    '<span class="bar"><i style="width:'+overall()+'%"></i></span><span class="pct">'+overall()+'%</span></button>';
+  document.getElementById("stepper").innerHTML = h;
+}
+
+/* ============================ shared blocks ============================ */
+function phaseHead(p, lead){
+  return '<div class="phase-head"><div class="phase-num">'+p.n+'</div><div><h2>'+L(p.name)+'</h2><p>'+esc(lead)+'</p></div>'+
+    '<div class="dates"><div><label>'+L({it:"Inizio",en:"Start"})+'</label>'+inp("dates."+p.key+".s","","date")+'</div>'+
+    '<div><label>'+L({it:"Fine",en:"Finish"})+'</label>'+inp("dates."+p.key+".f","","date")+'</div></div></div>';
+}
+function coach(title, purpose, how, traps){
+  return '<div class="coach"><h4>'+esc(title)+'</h4><p style="margin:0 0 10px;color:var(--ink-2);max-width:72ch">'+esc(purpose)+'</p>'+
+    '<div class="cols"><div><h4>'+L({it:"Come condurlo",en:"How to run it"})+'</h4><ul>'+how.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul></div>'+
+    '<div><h4>'+L({it:"Errori tipici",en:"Common traps"})+'</h4><ul>'+traps.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul></div></div></div>';
+}
+function gate(k){
+  var c = checks(k), miss = c.filter(function(x){return !x[1];});
+  var idx = PHASES.map(function(p){return p.key;}).indexOf(k);
+  var next = idx<PHASES.length-1 ? PHASES[idx+1] : null;
+  var h = '<div class="gate"><div class="g-main"><h4>'+L({it:"Gate – criteri di uscita",en:"Gate – exit criteria"})+' · '+pct(k)+'%</h4><ul>'+
+    c.map(function(x){return '<li class="'+(x[1]?"ok":"miss")+'">'+esc(x[0])+'</li>';}).join("")+'</ul></div>'+
+    '<div style="flex:0 0 230px"><h4>'+L({it:"Passaggio",en:"Hand-over"})+'</h4><p style="margin:0;color:var(--ink-2);font-size:13px">'+
+    (miss.length===0 ? esc(L({it:"Criteri soddisfatti: la fase è pronta per la review con lo sponsor.",en:"Criteria met: the phase is ready for the sponsor review."}))
+      : esc(L({it:"Mancano "+miss.length+" criteri. Puoi comunque proseguire — il gate è consultivo.",en:miss.length+" criteria still open. You can move on anyway — the gate is advisory."})))+
+    '</p></div></div>'+
+    '<div class="nav-foot no-print">'+(idx>0?'<button class="btn" data-act="go" data-v="'+PHASES[idx-1].key+'">← '+L(PHASES[idx-1].name)+'</button>':'<button class="btn" data-act="go" data-v="home">← '+L({it:"Progetto",en:"Project"})+'</button>')+
+    (next?'<button class="btn primary" data-act="go" data-v="'+next.key+'">'+L(next.name)+' →</button>':'<button class="btn primary" data-act="go" data-v="report">'+L({it:"Genera A3",en:"Build the A3"})+' →</button>')+'</div>';
+  return h;
+}
+
+/* ============================ views ============================ */
+function viewHome(){
+  var m = S.meta;
+  var h = '<div class="phase-head"><div><h2>'+L({it:"Anagrafica del progetto",en:"Project charter"})+'</h2>'+
+    '<p>'+L({it:"Compila l'intestazione dell'A3: è quello che lo sponsor legge per primo. Poi segui le cinque fasi in ordine — ogni fase ha la sua guida e i suoi strumenti.",en:"Fill in the A3 header: it is the first thing a sponsor reads. Then walk the five phases in order — each one carries its own guidance and tools."})+'</p></div></div>';
+  h += '<div class="meta"><div class="f"><label>'+L({it:"Titolo del problema",en:"Problem title"})+'</label>'+inp("meta.title", L({it:"Es. Errori di picking kit guarnizioni",en:"e.g. Picking errors on gasket kits"}))+'</div>'+
+    '<div class="row">'+
+    fld(L({it:"Data",en:"Date"}),"meta.date")+
+    fld("Team","meta.team",L({it:"Reparti coinvolti",en:"Departments involved"}))+
+    fld(L({it:"Reparto",en:"Dept."}),"meta.dept")+
+    fld(L({it:"Team leader",en:"Team leader"}),"meta.leader")+
+    '</div><div class="row" style="margin-top:12px">'+
+    '<div class="f"><label>'+L({it:"Priorità",en:"Priority"})+' (SQDC)</label><div class="sqdc">'+
+      ["S","Q","D","C"].map(function(v){return '<button data-act="sqdc" data-v="'+v+'" aria-pressed="'+(m.priority===v)+'">'+v+'</button>';}).join("")+
+      '</div><div class="sub">'+L({it:"Safety · Quality · Delivery · Cost",en:"Safety · Quality · Delivery · Cost"})+'</div></div>'+
+    fld("PRP #","meta.prp")+ fld("PRP L/T","meta.lt",L({it:"Es. 12 settimane",en:"e.g. 12 weeks"}))+ fld("STW","meta.stw")+
+    '</div></div>';
+  h += '<div class="card" style="--ph:var(--accent)"><h3><span class="tag">DMAIC</span>'+L({it:"Come funziona",en:"How this works"})+'</h3>'+
+    '<p class="hint">'+L({it:"Cinque fasi, un gate consultivo alla fine di ognuna. Nulla è bloccato: la percentuale ti dice cosa manca prima di presentare. Tutto ciò che scrivi confluisce automaticamente nell'A3 finale, pronto da stampare in orizzontale.",en:"Five phases, an advisory gate at the end of each. Nothing is locked: the percentage tells you what is still missing before you present. Everything you type flows into the final A3, ready to print in landscape."})+'</p>'+
+    '<div class="grid3">'+PHASES.map(function(p){
+      var d = {define:{it:"Definire il problema con i fatti, non con le opinioni. 5W2H e riscrittura.",en:"Frame the problem with facts, not opinions. 5W2H and restatement."},
+        measure:{it:"Capire il processo reale: 5 macro-fasi, swimlane, Ishikawa e dotmocracy.",en:"Understand the real process: 5 steps, swimlane, fishbone and dotmocracy."},
+        analyze:{it:"Scavare fino alla causa radice con i 5 Perché su ciascuna causa potenziale.",en:"Dig to root cause with 5 Whys on each potential cause."},
+        improve:{it:"Generare soluzioni, ordinarle su Benefit/Effort, costruire il piano d'azione.",en:"Generate solutions, sort them on Benefit/Effort, build the action plan."},
+        control:{it:"Rendere permanente il miglioramento: standard, formazione, follow-up.",en:"Make the improvement stick: standard, training, follow-up."}}[p.key];
+      return '<div style="border-left:3px solid '+p.color+';padding-left:11px"><div style="font-family:var(--f-mono);font-size:10px;color:var(--ink-3);letter-spacing:.08em">'+L({it:"FASE",en:"PHASE"})+' '+p.n+'</div>'+
+        '<div style="font-family:var(--f-disp);font-weight:600;color:'+p.color+'">'+L(p.name)+'</div>'+
+        '<div style="color:var(--ink-2);font-size:12.5px;margin-top:3px">'+esc(L(d))+'</div></div>';
+    }).join("")+'</div></div>';
+  if(S.demo){
+    h += '<div class="card" style="--ph:var(--warn);border-color:var(--warn)"><h3><span class="tag" style="background:var(--warn)">'+L({it:"ESEMPIO",en:"SAMPLE"})+'</span>'+
+      L({it:"Stai vedendo un caso dimostrativo",en:"You are looking at a worked example"})+'</h3>'+
+      '<p class="hint">'+L({it:"I dati caricati sono un caso fittizio di magazzino, utili per vedere come si comporta l'A3 finale. Premi «New» in alto per partire da un progetto vuoto: i dati di esempio spariscono.",en:"The loaded data is a fictional warehouse case, useful to see how the finished A3 behaves. Hit “New” at the top to start from an empty project: the sample data disappears."})+'</p>'+
+      '<button class="btn" data-act="reset">'+L({it:"Parti da un progetto vuoto",en:"Start an empty project"})+'</button></div>';
+  }
+  h += '<div class="nav-foot no-print"><span></span><button class="btn primary" data-act="go" data-v="define">'+L({it:"Inizia da Define",en:"Start with Define"})+' →</button></div>';
+  return h;
+}
+
+function viewDefine(){
+  var p = PHASES[0], W = S.define.w;
+  var rows = [
+    ["why",  {it:"<b>Perché</b> è un problema?",en:"<b>Why</b> is this a problem?"}, {it:"Impatto su sicurezza, cliente, costo, tempo",en:"Impact on safety, customer, cost, time"}],
+    ["where",{it:"<b>Dove</b> si verifica?",en:"<b>Where</b> is it occurring?"}, {it:"Linea, area, macchina, ufficio",en:"Line, area, machine, office"}],
+    ["who",  {it:"<b>Chi</b> ne è colpito?",en:"<b>Who</b> is affected?"}, {it:"Cliente interno o esterno",en:"Internal or external customer"}],
+    ["what", {it:"<b>Cosa</b> riguarda il problema?",en:"<b>What</b> is the problem about?"}, {it:"Prodotto, servizio, documento, flusso",en:"Product, service, document, flow"}],
+    ["when", {it:"<b>Quando</b> si verifica?",en:"<b>When</b> is it occurring?"}, {it:"Da quando, con che frequenza, in quale turno",en:"Since when, how often, which shift"}],
+    ["how",  {it:"<b>Come</b> sai che è un problema?",en:"<b>How</b> do you know it is a problem?"}, {it:"Fonte del dato: reclami, scarti, misure",en:"Data source: complaints, scrap, measurements"}],
+    ["many", {it:"<b>Quanti</b> difetti, pezzi, ore?",en:"<b>How many</b> defects, units, hours?"}, {it:"Il numero che rende il problema misurabile",en:"The number that makes it measurable"}]
+  ];
+  var h = phaseHead(p, L({it:"Un problema ben definito è mezzo risolto. Qui non si cercano cause né soluzioni: si delimita il fenomeno con i fatti.",en:"A well-defined problem is half solved. No causes and no solutions here: you bound the phenomenon with facts."}));
+  h += coach(L({it:"A cosa serve questa fase",en:"What this phase is for"}),
+    L({it:"Trasformare una lamentela («la spedizione va male») in un enunciato misurabile che tutto il team riconosce come vero.",en:"Turn a complaint (“shipping is bad”) into a measurable statement the whole team recognises as true."}),
+    [L({it:"Scrivi il problema come lo racconta chi lo subisce, poi verifica ogni affermazione con un dato.",en:"Write the problem as the person suffering it tells it, then back every claim with data."}),
+     L({it:"Rispondi al 5W2H a voce con il team, una riga alla volta: se una riga resta vuota, manca un dato da raccogliere.",en:"Answer the 5W2H out loud with the team, one line at a time: an empty line means data you still have to collect."}),
+     L({it:"Chiudi riscrivendo il problema con stato attuale e stato futuro misurabili e una data.",en:"Close by restating the problem with a measurable current state, future state and a date."})],
+    [L({it:"Infilare la causa nell'enunciato («per colpa del fornitore…»): blocca l'analisi.",en:"Smuggling a cause into the statement (“because of the supplier…”): it kills the analysis."}),
+     L({it:"Enunciato senza numeri: non potrai dimostrare il miglioramento.",en:"A statement with no numbers: you will not be able to prove the improvement."}),
+     L({it:"Ambito troppo largo. Se tocca tre reparti e sei processi, è un programma, non un A3.",en:"Scope too wide. Three departments and six processes is a programme, not an A3."})]);
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 1A</span>'+L({it:"Enunciato iniziale del problema",en:"Initial problem statement"})+'</h3>'+
+    '<p class="hint">'+L({it:"Due o tre righe, con il dato che lo rende reale. Nessuna causa, nessuna soluzione.",en:"Two or three lines, with the figure that makes it real. No cause, no solution."})+'</p>'+
+    ta("define.initial", L({it:"Nel periodo … il … % di … presenta …, con un impatto di …",en:"Over … period, …% of … shows …, with an impact of …"}), 3)+'</div>';
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">5W2H</span>'+L({it:"Comprendere il problema",en:"Understand the problem"})+'</h3>'+
+    '<p class="hint">'+L({it:"Sette domande, sette risposte fattuali. È la parte dell'A3 che regge tutto il resto.",en:"Seven questions, seven factual answers. This is the part of the A3 everything else leans on."})+'</p>'+
+    '<div class="w5">'+rows.map(function(r){
+      return '<div class="k"><div>'+L(r[1])+'<div style="font-size:11px;color:var(--ink-3);font-weight:400">'+esc(L(r[2]))+'</div></div></div>'+
+        '<div class="v">'+inp("define.w."+r[0])+'</div>';
+    }).join("")+'</div></div>';
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 1B</span>'+L({it:"Riscrivi il problema",en:"Restate the problem"})+'</h3>'+
+    '<p class="hint">'+L({it:"Include stato attuale e stato futuro. Questa frase finisce nella casella gialla dell'A3 e sarà la misura del successo.",en:"Include current state and future state. This sentence lands in the yellow box of the A3 and becomes the measure of success."})+'</p>'+
+    ta("define.restated", L({it:"Stato attuale: … Stato futuro: … entro …",en:"Current state: … Future state: … by …"}), 3)+'</div>';
+  return h + gate("define");
+}
+
+function viewMeasure(){
+  var p = PHASES[1];
+  var h = phaseHead(p, L({it:"Guarda il processo com'è davvero, non come è disegnato. Poi raccogli le cause possibili e falle votare al team.",en:"Look at the process as it really runs, not as it is drawn. Then collect possible causes and let the team vote."}));
+  h += coach(L({it:"A cosa serve questa fase",en:"What this phase is for"}),
+    L({it:"Mappare il flusso reale e far emergere tutte le cause candidate prima di sceglierne tre da approfondire.",en:"Map the real flow and surface every candidate cause before narrowing to the three worth digging into."}),
+    [L({it:"Cammina il processo (gemba walk) prima di disegnarlo: 5 macro-fasi bastano.",en:"Walk the process (gemba walk) before drawing it: five main steps are enough."}),
+     L({it:"Nella swimlane una riga = un reparto. I passaggi tra righe sono dove nascono i problemi.",en:"In the swimlane one row = one department. The hand-offs between rows are where problems are born."}),
+     L({it:"Ishikawa: brainstorming aperto, nessuna causa viene scartata mentre si raccoglie.",en:"Fishbone: open brainstorming, no cause gets rejected while collecting."}),
+     L({it:"Dotmocracy: ogni partecipante ha 3 voti, poi si selezionano le prime tre cause.",en:"Dotmocracy: three votes each, then pick the top three causes."})],
+    [L({it:"Disegnare il processo dalla sala riunioni. Sarà il processo ideale, non quello vero.",en:"Drawing the process from the meeting room. You will get the ideal process, not the real one."}),
+     L({it:"Confondere causa e sintomo. «Il cliente si lamenta» è un sintomo.",en:"Mixing cause and symptom. “The customer complains” is a symptom."}),
+     L({it:"Votare senza aver prima raccolto: si vota quello che si è detto per ultimo.",en:"Voting before collecting: people vote for whatever was said last."})]);
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2A</span>'+L({it:"Le 5 macro-fasi del processo",en:"The 5 main process steps"})+'</h3>'+
+    '<p class="hint">'+L({it:"Dall'innesco al risultato consegnato. Verbo + oggetto, poche parole.",en:"From trigger to delivered result. Verb + object, few words."})+'</p>'+
+    '<div class="pflow">'+[0,1,2,3,4].map(function(i){
+      return '<div class="pstep"><b>'+(i+1)+'</b>'+ta("measure.steps."+i,"",2)+'</div>';
+    }).join("")+'</div></div>';
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2B</span>'+L({it:"Swimlane – chi fa cosa",en:"Swimlane – who does what"})+'</h3>'+
+    '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ognuna delle 5 macro-fasi. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs."})+'</p>'+
+    S.measure.lanes.map(function(l,i){
+      return '<div class="lane"><div>'+inp("measure.lanes."+i+".d", L({it:"Reparto",en:"Department"}))+'</div>'+
+        '<div class="cells">'+[0,1,2,3,4].map(function(j){return inp("measure.lanes."+i+".c."+j,"");}).join("")+'</div>'+
+        '<button class="mini" data-act="delLane" data-v="'+i+'" title="'+L({it:"Elimina riga",en:"Delete row"})+'">×</button></div>';
+    }).join("")+
+    '<button class="btn" data-act="addLane">+ '+L({it:"Aggiungi reparto",en:"Add department"})+'</button></div>';
+  var totVotes = S.measure.cats.reduce(function(a,c){return a+c.causes.reduce(function(b,x){return b+(x.v||0);},0);},0);
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2C</span>'+L({it:"Ishikawa – raccolta delle cause",en:"Fishbone – collect the causes"})+'</h3>'+
+    '<p class="hint">'+L({it:"Sei categorie (6M). Aggiungi le cause e assegna i voti del team: il pallino conta i punti della dotmocracy. Voti assegnati: ",en:"Six categories (6M). Add causes and assign the team's votes: the dot counts dotmocracy points. Votes cast: "})+totVotes+'</p>'+
+    '<div class="fb">'+CATS.map(function(c,ci){
+      var cat = S.measure.cats[ci];
+      return '<div class="cat"><header>'+esc(L(c))+'<span>'+cat.causes.length+'</span></header><div class="body">'+
+        cat.causes.map(function(x,xi){
+          var sel = S.measure.picks.indexOf(x.t)>=0 && filled(x.t);
+          return '<div class="cause'+(sel?" sel":"")+'"><input type="text" data-path="measure.cats.'+ci+'.causes.'+xi+'.t" value="'+esc(x.t)+'" placeholder="'+L({it:"causa…",en:"cause…"})+'">'+
+            '<button class="mini" data-act="vote" data-v="'+ci+","+xi+',1" title="+1">●</button>'+
+            '<span class="votes">'+(x.v||0)+'</span>'+
+            '<button class="mini" data-act="delCause" data-v="'+ci+","+xi+'" title="'+L({it:"Elimina",en:"Delete"})+'">×</button></div>';
+        }).join("")+
+        '<div class="addrow"><button class="btn" data-act="addCause" data-v="'+ci+'" style="padding:4px 9px;font-size:12px">+ '+L({it:"causa",en:"cause"})+'</button></div>'+
+        '</div></div>';
+    }).join("")+'</div></div>';
+  var ranked = [];
+  S.measure.cats.forEach(function(c,ci){ c.causes.forEach(function(x){ if(filled(x.t)) ranked.push({t:x.t,v:x.v||0,c:L(CATS[ci])}); }); });
+  ranked.sort(function(a,b){return b.v-a.v;});
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2D</span>'+L({it:"Dotmocracy – le 3 cause potenziali",en:"Dotmocracy – top 3 potential causes"})+'</h3>'+
+    '<p class="hint">'+L({it:"Clicca una causa della classifica per assegnarla a PC1, PC2, PC3. Queste tre passano ad Analyze.",en:"Click a cause in the ranking to assign it to PC1, PC2, PC3. These three carry over into Analyze."})+'</p>'+
+    '<div class="grid2"><div>'+
+      (ranked.length? ranked.slice(0,10).map(function(r){
+        var on = S.measure.picks.indexOf(r.t)>=0;
+        return '<button class="btn" style="width:100%;justify-content:flex-start;margin-bottom:5px;'+(on?"border-color:var(--p3);color:var(--p3)":"")+'" data-act="pick" data-v="'+esc(r.t)+'">'+
+          '<span style="font-family:var(--f-mono);font-size:11px;color:var(--ink-3);min-width:26px">'+r.v+'●</span><span style="text-align:left">'+esc(r.t)+'</span>'+
+          '<span style="margin-left:auto;font-family:var(--f-mono);font-size:10px;color:var(--ink-3)">'+esc(r.c)+'</span></button>';
+      }).join("") : '<p class="hint">'+L({it:"Aggiungi prima qualche causa all'Ishikawa.",en:"Add some causes to the fishbone first."})+'</p>')+
+    '</div><div>'+[0,1,2].map(function(i){
+      return '<div class="f"><label>PC'+(i+1)+'</label>'+inp("measure.picks."+i, L({it:"causa potenziale "+(i+1),en:"potential cause "+(i+1)}))+'</div>';
+    }).join("")+'</div></div></div>';
+  return h + gate("measure");
+}
+
+function viewAnalyze(){
+  var p = PHASES[2];
+  var h = phaseHead(p, L({it:"Cinque «perché» su ciascuna causa potenziale, fino a raggiungere qualcosa che puoi davvero cambiare.",en:"Five “whys” on each potential cause, until you reach something you can actually change."}));
+  h += coach(L({it:"A cosa serve questa fase",en:"What this phase is for"}),
+    L({it:"Scendere dal sintomo alla causa radice: il livello dove agire evita che il problema ritorni.",en:"Descend from symptom to root cause: the level where acting stops the problem from coming back."}),
+    [L({it:"Chiedi «perché» finché la risposta riguarda un processo o una regola, non una persona.",en:"Ask “why” until the answer is about a process or a rule, not a person."}),
+     L({it:"Ogni perché deve essere verificabile con un fatto: se è un'ipotesi, segnala che va confermata.",en:"Every why must be checkable against a fact: if it is a hypothesis, flag it for confirmation."}),
+     L({it:"Fermati quando risalendo la catena («…quindi…») il ragionamento regge in senso inverso.",en:"Stop when reading the chain back up (“…therefore…”) still holds."})],
+    [L({it:"Fermarsi al terzo perché perché la risposta è già scomoda.",en:"Stopping at the third why because the answer is already uncomfortable."}),
+     L({it:"Arrivare a «mancanza di formazione» come risposta universale: quasi sempre è un livello ancora superficiale.",en:"Landing on “lack of training” as the universal answer: it is almost always still too shallow."}),
+     L({it:"Una sola catena per tre cause diverse: ogni causa ha la sua.",en:"One chain covering three different causes: each cause needs its own."})]);
+  S.analyze.chains.forEach(function(ch,i){
+    if(!filled(ch.cause) && filled(S.measure.picks[i])) ch.cause = S.measure.picks[i];
+  });
+  h += '<div class="grid3">'+[0,1,2].map(function(i){
+    var ch = S.analyze.chains[i];
+    return '<div class="why"><header><div class="lbl">PC'+(i+1)+' · '+L({it:"causa potenziale",en:"potential cause"})+'</div>'+
+      '<div class="txt">'+(filled(ch.cause)?esc(ch.cause):'<span style="color:var(--ink-3);font-weight:400">'+L({it:"— seleziona in Measure —",en:"— pick one in Measure —"})+'</span>')+'</div></header>'+
+      '<div class="steps">'+[0,1,2,3,4].map(function(w){
+        return '<div class="wl"><span>'+L({it:"perché",en:"why"})+" "+(w+1)+'</span>'+ta("analyze.chains."+i+".whys."+w,"",2)+'</div>';
+      }).join("")+'</div>'+
+      '<div class="root"><label style="font-family:var(--f-mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;color:var(--ink-3);display:block;margin-bottom:3px">'+L({it:"Causa radice",en:"Root cause"})+' '+(i+1)+'</label>'+
+      ta("analyze.chains."+i+".root","",2)+'</div></div>';
+  }).join("")+'</div>';
+  return h + gate("analyze");
+}
+
+function matrixSVG(sols, dark){
+  var ink = dark ? "#E7EDEA" : "#15201E", soft = dark ? "#8FA09A" : "#5B6763";
+  var q = [["#DAEAF6","#2471A3","Quick Wins","(High Impact, Low Effort)",0,0],
+           ["#D8F0DE","#1E8449","Major Projects","(High Impact, High Effort)",1,0],
+           ["#FBEFCB","#B7950B","Fill-ins","(Low Impact, Low Effort)",0,1],
+           ["#E0DFF7","#5B4FBE","Time Wasters","(Low Impact, High Effort)",1,1]];
+  var X0=60, Y0=26, W=420, H=300;
+  var s = '<svg viewBox="0 0 540 372" role="img" aria-label="Benefit effort matrix">';
+  q.forEach(function(k){
+    var x = X0 + k[4]*(W/2), y = Y0 + k[5]*(H/2);
+    s += '<rect x="'+x+'" y="'+y+'" width="'+(W/2-3)+'" height="'+(H/2-3)+'" fill="'+k[0]+'" stroke="'+k[1]+'" stroke-width="1" opacity="'+(dark?.82:1)+'"/>';
+    s += '<text x="'+(x+W/4-1)+'" y="'+(y+H/4-4)+'" text-anchor="middle" fill="'+k[1]+'" font-family="Archivo, sans-serif" font-size="14" font-weight="600">'+k[2]+'</text>';
+    s += '<text x="'+(x+W/4-1)+'" y="'+(y+H/4+10)+'" text-anchor="middle" fill="'+k[1]+'" font-family="IBM Plex Sans, sans-serif" font-size="9">'+k[3]+'</text>';
+  });
+  s += '<text x="'+(X0+W/2)+'" y="14" text-anchor="middle" fill="'+soft+'" font-family="IBM Plex Mono, monospace" font-size="9">HIGH IMPACT</text>';
+  s += '<text x="'+(X0+W/2)+'" y="'+(Y0+H+16)+'" text-anchor="middle" fill="'+soft+'" font-family="IBM Plex Mono, monospace" font-size="9">LOW IMPACT</text>';
+  s += '<text x="'+(X0-8)+'" y="'+(Y0+H/2)+'" text-anchor="end" fill="'+soft+'" font-family="IBM Plex Mono, monospace" font-size="9">LOW</text>';
+  s += '<text x="'+(X0-8)+'" y="'+(Y0+H/2+11)+'" text-anchor="end" fill="'+soft+'" font-family="IBM Plex Mono, monospace" font-size="9">EFFORT</text>';
+  s += '<text x="'+(X0+W+8)+'" y="'+(Y0+H/2)+'" fill="'+soft+'" font-family="IBM Plex Mono, monospace" font-size="9">HIGH</text>';
+  s += '<text x="'+(X0+W+8)+'" y="'+(Y0+H/2+11)+'" fill="'+soft+'" font-family="IBM Plex Mono, monospace" font-size="9">EFFORT</text>';
+  sols.forEach(function(so,i){
+    if(!filled(so.t)) return;
+    var cx = X0 + (so.effort-1)/9*(W-24) + 12;
+    var cy = Y0 + (10-so.impact)/9*(H-24) + 12;
+    var fill = so.pick ? "#B4552D" : (dark?"#4C5A55":"#8A948F");
+    s += '<circle cx="'+cx.toFixed(1)+'" cy="'+cy.toFixed(1)+'" r="13" fill="'+fill+'" stroke="#fff" stroke-width="1.5"/>';
+    s += '<text x="'+cx.toFixed(1)+'" y="'+(cy+3.5).toFixed(1)+'" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="9.5">PS'+(i+1)+'</text>';
+  });
+  return s + '</svg>';
+}
+
+function viewImprove(){
+  var p = PHASES[3];
+  var picks = S.improve.sols.filter(function(s){return s.pick && filled(s.t);});
+  var h = phaseHead(p, L({it:"Genera più soluzioni di quante ne userai, ordinale per beneficio ed effort, poi impegnati su tre con nomi e date.",en:"Generate more solutions than you will use, sort them by benefit and effort, then commit to three with names and dates."}));
+  h += coach(L({it:"A cosa serve questa fase",en:"What this phase is for"}),
+    L({it:"Passare dalla causa radice a un piano che qualcuno possa eseguire lunedì mattina.",en:"Move from root cause to a plan someone can execute on Monday morning."}),
+    [L({it:"Ogni soluzione deve attaccare una causa radice identificata in Analyze, non un sintomo.",en:"Each solution must attack a root cause found in Analyze, not a symptom."}),
+     L({it:"Valuta impatto ed effort con il team, non da solo: le due scale sono relative al vostro contesto.",en:"Score impact and effort with the team, not alone: both scales are relative to your context."}),
+     L({it:"Parti dai Quick Wins per costruire credibilità, ma non fermarti lì.",en:"Start with Quick Wins to build credibility, but do not stop there."}),
+     L({it:"Un'azione senza owner e senza data non è un'azione.",en:"An action with no owner and no date is not an action."})],
+    [L({it:"Saltare direttamente alla soluzione preferita del capo.",en:"Jumping straight to the boss's favourite solution."}),
+     L({it:"Cinque azioni tutte assegnate alla stessa persona.",en:"Five actions all assigned to the same person."}),
+     L({it:"Soluzioni che dipendono dalla buona volontà («fare più attenzione»).",en:"Solutions that rely on goodwill (“be more careful”)."})]);
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 4A</span>'+L({it:"Soluzioni potenziali",en:"Potential solutions"})+'</h3>'+
+    '<p class="hint">'+L({it:"Fino a cinque. Sposta i cursori: la matrice qui sotto si aggiorna in tempo reale. Il pin ★ seleziona le tre soluzioni migliori (BS1-BS3).",en:"Up to five. Move the sliders: the matrix below updates live. The ★ pin selects your top three solutions (BS1-BS3)."})+'</p>'+
+    S.improve.sols.map(function(so,i){
+      return '<div class="sol"><div class="id">PS'+(i+1)+'</div>'+
+        '<div class="tx">'+inp("improve.sols."+i+".t", L({it:"soluzione…",en:"solution…"}))+'</div>'+
+        '<div class="sl"><label><span>'+L({it:"Impatto",en:"Impact"})+'</span><span>'+so.impact+'</span></label><input type="range" min="1" max="10" value="'+so.impact+'" data-act="slider" data-v="'+i+',impact"></div>'+
+        '<div class="sl"><label><span>'+L({it:"Effort",en:"Effort"})+'</span><span>'+so.effort+'</span></label><input type="range" min="1" max="10" value="'+so.effort+'" data-act="slider" data-v="'+i+',effort"></div>'+
+        '<button class="mini'+(so.pick?" on":"")+'" style="'+(so.pick?"background:var(--p4);border-color:var(--p4)":"")+'" data-act="pin" data-v="'+i+'" title="BS">★</button></div>';
+    }).join("")+'</div>';
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 4B</span>'+L({it:"Matrice Benefit / Effort",en:"Benefit / Effort matrix"})+'</h3>'+
+    '<div class="matrix-wrap"><div>'+matrixSVG(S.improve.sols, document.documentElement.dataset.theme==="dark" || (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches))+'</div>'+
+    '<div><h4 style="font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">'+L({it:"Step 4C · Le 3 migliori",en:"Step 4C · Top 3"})+'</h4>'+
+      (picks.length? picks.map(function(s,i){
+        return '<div style="border-left:3px solid var(--p4);padding:5px 0 5px 10px;margin-bottom:8px"><div style="font-family:var(--f-mono);font-size:10px;color:var(--p4)">BS'+(i+1)+'</div>'+esc(s.t)+'</div>';
+      }).join("") : '<p class="hint">'+L({it:"Nessuna soluzione selezionata. Usa il pin ★ accanto alle soluzioni: idealmente tre.",en:"No solution selected yet. Use the ★ pin next to a solution: three of them, ideally."})+'</p>')+
+      '</div></div></div>';
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 4D</span>'+L({it:"Piano d'azione",en:"Improvement action plan"})+'</h3>'+
+    '<p class="hint">'+L({it:"Azione, responsabile, data. Se una casella resta vuota, l'azione non parte.",en:"Action, owner, due date. If one box stays empty, the action will not happen."})+'</p>'+
+    '<div class="acts"><span></span><span class="hd">'+L({it:"Azione",en:"Action"})+'</span><span class="hd">Owner</span><span class="hd">'+L({it:"Scadenza",en:"Due"})+'</span><span class="hd">'+L({it:"Stato",en:"Status"})+'</span></div>'+
+    S.improve.actions.map(function(a,i){
+      var st = (filled(a.t)&&filled(a.o)&&filled(a.d));
+      return '<div class="acts"><div class="id">A'+(i+1)+'</div>'+inp("improve.actions."+i+".t","")+inp("improve.actions."+i+".o","")+inp("improve.actions."+i+".d","","date")+
+        '<span class="pill '+(st?"done":"open")+'">'+(st?L({it:"pronta",en:"ready"}):L({it:"da completare",en:"incomplete"}))+'</span></div>';
+    }).join("")+'</div>';
+  return h + gate("improve");
+}
+
+function viewControl(){
+  var p = PHASES[4];
+  var h = phaseHead(p, L({it:"Il miglioramento che non viene standardizzato torna indietro entro tre mesi. Qui lo si blocca.",en:"An improvement that is not standardised drifts back within three months. This is where you lock it in."}));
+  h += coach(L({it:"A cosa serve questa fase",en:"What this phase is for"}),
+    L({it:"Rendere il nuovo modo di lavorare quello ovvio: standard scritto, persone formate, un KPI che lo tiene visibile.",en:"Make the new way the obvious way: a written standard, trained people, a KPI that keeps it visible."}),
+    [L({it:"Aggiorna lo standard prima di chiudere l'A3, non dopo.",en:"Update the standard before you close the A3, not after."}),
+     L({it:"Due follow-up: uno a poche settimane, uno di chiusura con il dato che dimostra il risultato.",en:"Two follow-ups: one after a few weeks, one closing with the figure that proves the result."}),
+     L({it:"Passa la proprietà del KPI al responsabile di reparto: l'A3 finisce, il processo no.",en:"Hand the KPI over to the line manager: the A3 ends, the process does not."})],
+    [L({it:"Chiudere l'A3 il giorno dell'ultima azione, senza verificare l'effetto.",en:"Closing the A3 the day the last action is done, without checking the effect."}),
+     L({it:"Standard che vive solo nella presentazione e non nell'istruzione operativa.",en:"A standard that lives in the deck and never in the work instruction."}),
+     L({it:"Nessuna misura post-intervento: non saprai se ha funzionato.",en:"No post-implementation measure: you will never know whether it worked."})]);
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 5</span>'+L({it:"Sostenere le soluzioni implementate",en:"Sustain the solutions implemented"})+'</h3>'+
+    '<div class="ctrl-row"><span class="hd" style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;color:var(--ink-3)">'+L({it:"Elemento",en:"Item"})+'</span>'+
+    '<span style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;color:var(--ink-3)">'+L({it:"Settimana",en:"Week due"})+'</span>'+
+    '<span style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;color:var(--ink-3)">Owner</span>'+
+    '<span style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;color:var(--ink-3)">'+L({it:"Stato",en:"Status"})+'</span></div>'+
+    S.control.rows.map(function(r,i){
+      return '<div class="ctrl-row"><div style="font-size:13px">'+esc(L(r.k))+'</div>'+
+        inp("control.rows."+i+".w", "STW")+inp("control.rows."+i+".o","")+
+        '<button class="btn" data-act="ctrlDone" data-v="'+i+'" style="'+(r.done?"border-color:var(--ok);color:var(--ok)":"")+'">'+(r.done?"✓ "+L({it:"fatto",en:"done"}):L({it:"aperto",en:"open"}))+'</button></div>';
+    }).join("")+'</div>';
+  return h + gate("control");
+}
+
+/* ============================ A3 report ============================ */
+function box(v, cls){ v = String(v||"").trim(); return '<div class="box '+(cls||"")+'">'+(v?nl(v):'<span class="empty">—</span>')+'</div>'; }
+function fishSVG(){
+  var top = [0,1,2], bot = [3,4,5];
+  var s = '<svg viewBox="0 0 700 300" role="img" aria-label="Ishikawa diagram">';
+  s += '<line x1="30" y1="150" x2="620" y2="150" stroke="#2B3634" stroke-width="3"/>';
+  s += '<polygon points="620,120 690,150 620,180" fill="#2B3634"/>';
+  var eff = (S.define.restated || S.define.initial || "").slice(0,60);
+  var colsT = ["#F6C445","#F7DE8B","#DFE3E0"], colsB = ["#B6F0F2","#D6E9F7","#C7D3F5"];
+  function bone(ci, up, k){
+    var xEnd = 130 + k*180, yEnd = 150;
+    var xBox = 60 + k*180, yBox = up ? 30 : 240;
+    var cat = S.measure.cats[ci], name = L(CATS[ci]);
+    var col = up ? colsT[k] : colsB[k];
+    var g = '<line x1="'+(xBox+70)+'" y1="'+(up?yBox+22:yBox)+'" x2="'+(xEnd+60)+'" y2="'+yEnd+'" stroke="#9AA5A0" stroke-width="1"/>';
+    g += '<rect x="'+xBox+'" y="'+yBox+'" width="150" height="22" rx="11" fill="'+col+'" stroke="#B7BFBA" stroke-width=".8"/>';
+    g += '<text x="'+(xBox+75)+'" y="'+(yBox+15)+'" text-anchor="middle" font-family="Archivo, sans-serif" font-size="11" font-weight="600" fill="#222E2B">'+esc(name)+'</text>';
+    var cs = cat.causes.filter(function(x){return filled(x.t);}).sort(function(a,b){return (b.v||0)-(a.v||0);}).slice(0,3);
+    cs.forEach(function(x,j){
+      var ty = up ? yBox+36+j*13 : yBox-10-((cs.length-1-j)*13);
+      g += '<text x="'+(xBox+4)+'" y="'+ty+'" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="#3C4744">• '+esc(x.t.slice(0,40))+(x.t.length>40?"…":"")+'</text>';
+    });
+    return g;
+  }
+  top.forEach(function(ci,k){ s += bone(ci,true,k); });
+  bot.forEach(function(ci,k){ s += bone(ci,false,k); });
+  if(eff) s += '<text x="640" y="196" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="#5B6763">'+esc(eff.slice(0,58))+'…</text>';
+  return s + '</svg>';
+}
+function viewReport(){
+  var m = S.meta, D = S.define, M = S.measure, A = S.analyze, I = S.improve, C = S.control;
+  var picked = I.sols.filter(function(s){return s.pick && filled(s.t);});
+  var h = '<div class="no-print" style="display:flex;align-items:flex-start;gap:14px;flex-wrap:wrap;margin-bottom:6px">'+
+    '<div><h2 style="font-size:22px">'+L({it:"Report A3",en:"A3 Report"})+'</h2>'+
+    '<p class="print-note">'+L({it:"Costruito da quello che hai inserito nelle cinque fasi. Stampa in A3 orizzontale (o salva come PDF dalla finestra di stampa). Se il pulsante non apre la stampa, usa Ctrl/Cmd + P.",en:"Built from everything you entered across the five phases. Print on A3 landscape (or save as PDF from the print dialog). If the button does not open the print dialog, use Ctrl/Cmd + P."})+'</p></div>'+
+    '<div style="margin-left:auto;display:flex;gap:8px"><button class="btn" data-act="go" data-v="control">← Control</button>'+
+    '<button class="btn primary" data-act="print">'+L({it:"Stampa / PDF",en:"Print / PDF"})+'</button></div></div>';
+
+  h += '<div class="sheet-scroll"><div class="sheet">';
+  h += '<div class="s-head"><div class="s-title">'+(filled(m.title)?esc(m.title):L({it:"Titolo del problema",en:"Problem title"}))+'<small>DMAIC A3 Report</small></div>'+
+    '<dl class="kv"><dt>'+L({it:"Data",en:"Date"})+'</dt><dd>'+esc(m.date)+'</dd><dt>Team</dt><dd>'+esc(m.team)+'</dd><dt>'+L({it:"Reparto",en:"Dept"})+'</dt><dd>'+esc(m.dept)+'</dd></dl>'+
+    '<dl class="kv"><dt>'+L({it:"Leader",en:"Leader"})+'</dt><dd>'+esc(m.leader)+'</dd><dt>PRP #</dt><dd>'+esc(m.prp)+'</dd><dt>PRP L/T</dt><dd>'+esc(m.lt)+'</dd></dl>'+
+    '<div><div class="s-sqdc">'+["S","Q","D","C"].map(function(v){return '<i data-v="'+v+'" class="'+(m.priority===v?"on":"")+'">'+v+'</i>';}).join("")+'</div>'+
+    '<div style="text-align:right;font-family:var(--f-mono);font-size:8.5px;color:#5B6763;margin-top:4px">'+L({it:"PRIORITÀ ALFA LAVAL",en:"PRIORITY"})+' · '+esc(m.stw)+'</div></div></div>';
+
+  h += '<div class="cols">';
+  /* ---- column 1: define + measure ---- */
+  h += '<div>';
+  h += '<div class="blk"><h5 style="background:'+"#35618F"+'"><span>1 · DEFINE</span><em>'+esc(S.dates.define.s)+' → '+esc(S.dates.define.f)+'</em></h5><div class="in">'+
+    '<span class="st">Step 1A – '+L({it:"Enunciato iniziale",en:"Initial problem statement"})+'</span>'+box(D.initial)+
+    '<span class="st">5W2H</span><table>'+
+      [["Why",D.w.why],["Where",D.w.where],["Who",D.w.who],["What",D.w.what],["When",D.w.when],["How",D.w.how],["How many",D.w.many]]
+      .map(function(r){return '<tr><td class="k">'+r[0]+'</td><td>'+(filled(r[1])?nl(r[1]):'<span class="empty">—</span>')+'</td></tr>';}).join("")+
+    '</table>'+
+    '<span class="st">Step 1B – '+L({it:"Problema riscritto (stato attuale e futuro)",en:"Restated problem (current & future state)"})+'</span>'+box(D.restated,"hi")+
+    '</div></div>';
+  h += '<div class="blk"><h5 style="background:'+"#1F7A6B"+'"><span>2 · MEASURE</span><em>'+esc(S.dates.measure.s)+' → '+esc(S.dates.measure.f)+'</em></h5><div class="in">'+
+    '<span class="st">Step 2A – '+L({it:"Le 5 macro-fasi",en:"The 5 main process steps"})+'</span>'+
+    '<div class="flow">'+M.steps.map(function(s,i){return '<div><b style="font-family:var(--f-mono);font-size:7.5px;color:#8A948F">'+(i+1)+'</b><br>'+(filled(s)?esc(s):'<span class="empty">—</span>')+'</div>';}).join("")+'</div>'+
+    '<span class="st">Step 2B – '+L({it:"Flusso per reparto",en:"Process flow by department"})+'</span>'+
+    '<table><tr><th>'+L({it:"Reparto",en:"Department"})+'</th>'+M.steps.map(function(s,i){return '<th>'+(i+1)+'</th>';}).join("")+'</tr>'+
+      M.lanes.filter(function(l){return filled(l.d)||l.c.some(filled);}).map(function(l){
+        return '<tr><td class="k">'+esc(l.d)+'</td>'+l.c.map(function(c){return '<td>'+(filled(c)?esc(c):"")+'</td>';}).join("")+'</tr>';
+      }).join("")+'</table>'+
+    '</div></div>';
+  h += '</div>';
+  /* ---- column 2: analyze ---- */
+  h += '<div>';
+  h += '<div class="blk"><h5 style="background:'+"#A8761F"+'"><span>3 · ANALYZE</span><em>'+esc(S.dates.analyze.s)+' → '+esc(S.dates.analyze.f)+'</em></h5><div class="in">'+
+    '<span class="st">Step 2C/2D – '+L({it:"Ishikawa e cause potenziali",en:"Fishbone & potential causes"})+'</span>'+ fishSVG() +
+    '<table style="margin-top:5px"><tr>'+[0,1,2].map(function(i){return '<th>PC'+(i+1)+'</th>';}).join("")+'</tr><tr>'+
+      [0,1,2].map(function(i){return '<td>'+(filled(M.picks[i])?esc(M.picks[i]):'<span class="empty">—</span>')+'</td>';}).join("")+'</tr></table>'+
+    '<span class="st">Step 3A – '+L({it:"5 Perché",en:"5 Whys"})+'</span>'+
+    '<table><tr>'+[0,1,2].map(function(i){return '<th>PC'+(i+1)+'</th>';}).join("")+'</tr>'+
+      [4,3,2,1,0].map(function(w){
+        return '<tr>'+[0,1,2].map(function(i){
+          var v = A.chains[i].whys[w];
+          return '<td><span style="font-family:var(--f-mono);font-size:7.5px;color:#A9B2AE">'+(w+1)+'</span> '+(filled(v)?esc(v):"")+'</td>';
+        }).join("")+'</tr>';
+      }).join("")+
+      '<tr>'+[0,1,2].map(function(i){
+        return '<td style="background:#FFF4E0"><span style="font-family:var(--f-mono);font-size:7.5px;color:#A8562A">ROOT '+(i+1)+'</span><br>'+(filled(A.chains[i].root)?esc(A.chains[i].root):'<span class="empty">—</span>')+'</td>';
+      }).join("")+'</tr></table>'+
+    '</div></div>';
+  h += '</div>';
+  /* ---- column 3: improve + control ---- */
+  h += '<div>';
+  h += '<div class="blk"><h5 style="background:'+"#B4552D"+'"><span>4 · IMPROVE</span><em>'+esc(S.dates.improve.s)+' → '+esc(S.dates.improve.f)+'</em></h5><div class="in">'+
+    '<span class="st">Step 4A – '+L({it:"Soluzioni potenziali",en:"Potential solutions"})+'</span>'+
+    '<table>'+I.sols.map(function(s,i){
+      return '<tr><td class="idc">PS'+(i+1)+'</td><td>'+(filled(s.t)?esc(s.t):'<span class="empty">—</span>')+'</td>'+
+        '<td style="width:64px;font-family:var(--f-mono);font-size:7.5px;color:#5B6763">I'+s.impact+' / E'+s.effort+'</td></tr>';
+    }).join("")+'</table>'+
+    '<span class="st">Step 4B – Benefit / Effort</span>'+ matrixSVG(I.sols,false) +
+    '<span class="st">Step 4C – '+L({it:"Le 3 soluzioni scelte",en:"Top 3 selected solutions"})+'</span>'+
+    '<table>'+[0,1,2].map(function(i){
+      return '<tr><td class="idc">BS'+(i+1)+'</td><td>'+(picked[i]?esc(picked[i].t):'<span class="empty">—</span>')+'</td></tr>';
+    }).join("")+'</table>'+
+    '<span class="st">Step 4D – '+L({it:"Piano d'azione",en:"Action plan"})+'</span>'+
+    '<table><tr><th>ID</th><th>'+L({it:"Azione",en:"Action"})+'</th><th>Owner</th><th>'+L({it:"Scad.",en:"Due"})+'</th></tr>'+
+      I.actions.map(function(a,i){
+        return '<tr><td class="idc">A'+(i+1)+'</td><td>'+(filled(a.t)?esc(a.t):'<span class="empty">—</span>')+'</td><td>'+esc(a.o)+'</td><td style="white-space:nowrap">'+esc(a.d)+'</td></tr>';
+      }).join("")+'</table>'+
+    '</div></div>';
+  h += '<div class="blk"><h5 style="background:'+"#4B5D67"+'"><span>5 · CONTROL</span><em>'+esc(S.dates.control.s)+' → '+esc(S.dates.control.f)+'</em></h5><div class="in">'+
+    '<table><tr><th>'+L({it:"Elemento",en:"Item"})+'</th><th>Owner</th><th>'+L({it:"Settimana",en:"Week due"})+'</th><th>'+L({it:"Stato",en:"Status"})+'</th></tr>'+
+      C.rows.map(function(r){
+        return '<tr><td class="k" style="width:44%">'+esc(L(r.k))+'</td><td>'+esc(r.o)+'</td><td>'+esc(r.w)+'</td><td style="text-align:center">'+(r.done?"✓":"")+'</td></tr>';
+      }).join("")+'</table>'+
+    '</div></div>';
+  h += '</div>';
+  h += '</div>';
+  h += '<div class="foot"><span>'+L({it:"COMPLETAMENTO",en:"COMPLETION"})+' '+overall()+'%</span><span>'+PHASES.map(function(p){return L(p.name).toUpperCase()+" "+pct(p.key)+"%";}).join(" · ")+'</span></div>';
+  h += '</div></div>';
+  return h;
+}
+
+/* ============================ render + events ============================ */
+function render(){
+  var v = document.getElementById("view");
+  var map = {home:viewHome, define:viewDefine, measure:viewMeasure, analyze:viewAnalyze, improve:viewImprove, control:viewControl, report:viewReport};
+  v.innerHTML = (map[current] || viewHome)();
+  renderStepper();
+  document.getElementById("langIt").setAttribute("aria-pressed", LANG==="it");
+  document.getElementById("langEn").setAttribute("aria-pressed", LANG==="en");
+  document.getElementById("btnA3").textContent = L({it:"Report A3",en:"A3 report"});
+  document.getElementById("btnExport").textContent = L({it:"Backup",en:"Backup"});
+  document.getElementById("btnImport").textContent = L({it:"Carica",en:"Load"});
+  document.getElementById("btnReset").textContent = L({it:"Nuovo",en:"New"});
+  document.getElementById("brandSub").textContent = L({it:"DMAIC · Problem solving guidato",en:"DMAIC · guided problem solving"});
+  window.scrollTo({top:0,behavior:"instant"});
+}
+document.addEventListener("input", function(e){
+  var t = e.target;
+  if(t.dataset && t.dataset.path){ set(t.dataset.path, t.value); save(); renderStepper(); return; }
+  if(t.dataset && t.dataset.act==="slider"){
+    var a = t.dataset.v.split(","); S.improve.sols[+a[0]][a[1]] = +t.value; save();
+    var lab = t.parentNode.querySelector("label span:last-child"); if(lab) lab.textContent = t.value;
+    var host = document.querySelector(".matrix-wrap > div");
+    if(host) host.innerHTML = matrixSVG(S.improve.sols, document.documentElement.dataset.theme==="dark" || (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches));
+  }
+});
+document.addEventListener("click", function(e){
+  var b = e.target.closest("[data-act]"); if(!b) return;
+  var act = b.dataset.act, v = b.dataset.v;
+  if(act==="go"){ current = v; render(); }
+  else if(act==="lang"){ LANG = v; save(); render(); }
+  else if(act==="theme"){
+    var r = document.documentElement, cur = r.dataset.theme;
+    var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
+    r.dataset.theme = cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
+    if(current==="improve"||current==="report") render();
+  }
+  else if(act==="sqdc"){ S.meta.priority = (S.meta.priority===v?"":v); save(); render(); }
+  else if(act==="addLane"){ S.measure.lanes.push({d:"",c:["","","","",""]}); save(); render(); }
+  else if(act==="delLane"){ S.measure.lanes.splice(+v,1); save(); render(); }
+  else if(act==="addCause"){ S.measure.cats[+v].causes.push({t:"",v:0}); save(); render(); }
+  else if(act==="delCause"){ var a = v.split(","); S.measure.cats[+a[0]].causes.splice(+a[1],1); save(); render(); }
+  else if(act==="vote"){ var q = v.split(","); var c = S.measure.cats[+q[0]].causes[+q[1]]; c.v = (c.v||0)+1; save(); render(); }
+  else if(act==="pick"){
+    var idx = S.measure.picks.indexOf(v);
+    if(idx>=0){ S.measure.picks[idx] = ""; }
+    else { var slot = S.measure.picks.findIndex(function(x){return !filled(x);}); if(slot<0) slot = 2; S.measure.picks[slot] = v; }
+    save(); render();
+  }
+  else if(act==="pin"){
+    var s = S.improve.sols[+v];
+    var n = S.improve.sols.filter(function(x){return x.pick;}).length;
+    if(!s.pick && n>=3){ s.pick = true; } else { s.pick = !s.pick; }
+    save(); render();
+  }
+  else if(act==="ctrlDone"){ S.control.rows[+v].done = !S.control.rows[+v].done; save(); render(); }
+  else if(act==="print"){ window.print(); }
+  else if(act==="export"){ doExport(b); }
+  else if(act==="import"){ document.getElementById("fileIn").click(); }
+  else if(act==="reset"){
+    if(confirm(L({it:"Cancellare il progetto corrente e partire da vuoto?",en:"Clear the current project and start empty?"}))){
+      S = blank(); S.lang = LANG; save(); current = "home"; render();
+    }
+  }
+});
+document.getElementById("fileIn").addEventListener("change", function(e){
+  var f = e.target.files[0]; if(!f) return;
+  var r = new FileReader();
+  r.onload = function(){
+    try{ var o = JSON.parse(r.result); if(!o || !o.meta) throw 0; S = o; if(o.lang) LANG = o.lang; save(); current="home"; render(); }
+    catch(err){ alert(L({it:"File non valido: attendevo un backup .a3.json esportato da questa app.",en:"Invalid file: expected an .a3.json backup exported from this app."})); }
+  };
+  r.readAsText(f); e.target.value = "";
+});
+window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", function(){ if(current==="improve"||current==="report") render(); });
+
+/* ---- file save: hosted-artifact capability, or a plain browser download ---- */
+var DL = null, HOSTED = !!(window.claude && typeof window.claude.use === "function");
+function fileName(){
+  var n = (S.meta.title||"a3").replace(/[^\w\- ]+/g,"").trim().replace(/\s+/g,"-").slice(0,40);
+  return (n||"a3")+".json";
+}
+function flash(btn, txt, ms){ var old = btn.textContent; btn.textContent = txt; setTimeout(function(){ btn.textContent = old; }, ms||1600); }
+function doExport(btn){
+  var json = JSON.stringify(S,null,2);
+  if(DL){
+    DL.save({filename:fileName(), data:json}).then(function(){ flash(btn,"✓"); }).catch(function(err){
+      var c = err && err.code;
+      if(c==="declined") return;
+      flash(btn, c==="too_large" ? L({it:"troppo grande",en:"too large"}) : L({it:"non riuscito",en:"failed"}), 2200);
+    });
+    return;
+  }
+  try{
+    var url = URL.createObjectURL(new Blob([json],{type:"application/json"})), a2 = document.createElement("a");
+    a2.href = url; a2.download = fileName(); document.body.appendChild(a2); a2.click(); a2.remove();
+    setTimeout(function(){ URL.revokeObjectURL(url); }, 1000); flash(btn,"✓");
+  }catch(err){ flash(btn, L({it:"non riuscito",en:"failed"}), 2200); }
+}
+if(HOSTED){
+  window.claude.use("downloads").then(function(d){
+    DL = d;
+    var b = document.getElementById("btnExport"); if(b) b.style.display = d ? "" : "none";
+  }).catch(function(){ var b = document.getElementById("btnExport"); if(b) b.style.display = "none"; });
+} else {
+  document.getElementById("btnExport").style.display = "";
+}
+
+if(!load()){ S = demo(); LANG = "it"; save(); }
+render();
+</script>
+</body>
+</html>
