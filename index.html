@@ -170,6 +170,12 @@ textarea{resize:vertical;min-height:64px}
 /* control */
 .ctrl-row{display:grid;grid-template-columns:1fr 110px 120px 130px;gap:8px;align-items:center;margin-bottom:7px}
 @media(max-width:720px){.ctrl-row{grid-template-columns:1fr 1fr}}
+.stsel{font-size:12.5px;padding:5px 7px;border-left-width:4px}
+.stsel.st-todo{border-left-color:var(--ink-3);color:var(--ink-2)}
+.stsel.st-ongoing{border-left-color:var(--p1);color:var(--p1)}
+.stsel.st-done{border-left-color:var(--ok);color:var(--ok)}
+.stsel.st-hold{border-left-color:var(--warn);color:var(--warn)}
+.stsel.st-cancelled{border-left-color:var(--ink-3);color:var(--ink-3);text-decoration:line-through}
 .pill{font-family:var(--f-mono);font-size:10.5px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);display:inline-block}
 .pill.done{background:color-mix(in srgb,var(--ok) 16%,transparent);border-color:var(--ok);color:var(--ok)}
 .pill.open{background:color-mix(in srgb,var(--warn) 14%,transparent);border-color:var(--warn);color:var(--warn)}
@@ -352,14 +358,14 @@ var CATS = [
 function blank(){
   return {
     v:1, lang:"it", demo:false,
-    meta:{title:"",date:"",team:"",dept:"",leader:"",priority:"",prp:"",lt:"",stw:""},
+    meta:{title:"",date:"",team:"",dept:"",leader:"",priority:"",prp:"",lt:""},
     dates:{define:{s:"",f:""},measure:{s:"",f:""},analyze:{s:"",f:""},improve:{s:"",f:""},control:{s:"",f:""}},
     define:{initial:"",w:{why:"",where:"",who:"",what:"",when:"",how:"",many:""},restated:""},
     measure:{steps:["","","","",""],lanes:[{d:"",c:["","","","",""]},{d:"",c:["","","","",""]},{d:"",c:["","","","",""]}],
       cats:CATS.map(function(){return {causes:[]};}), picks:["","",""]},
     analyze:{chains:[0,1,2].map(function(){return {cause:"",whys:["","","","",""],root:""};})},
     improve:{sols:[1,2,3,4,5].map(function(i){return {t:"",impact:5,effort:5,pick:false};}),
-      actions:[1,2,3,4,5].map(function(){return {t:"",o:"",d:""};})},
+      actions:[1,2,3,4,5].map(function(){return {t:"",o:"",d:"",s:"todo"};})},
     control:{rows:[
       {k:{it:"1° riunione di follow-up",en:"1st follow-up meeting"},w:"",o:"",done:false},
       {k:{it:"Modifiche implementate",en:"Changes implemented"},w:"",o:"",done:false},
@@ -372,7 +378,7 @@ function blank(){
 function demo(){
   var s = blank(); s.demo = true;
   s.meta = {title:"Errori di picking kit guarnizioni – linea ricambi",date:"2026-09-02",team:"Warehouse / Planning / Quality",
-    dept:"Operations – Monza",leader:"OD / ALPS",priority:"Q",prp:"PRP-2026-014",lt:"12 wk",stw:"STW 36"};
+    dept:"Operations – Monza",leader:"OD / ALPS",priority:"Q",prp:"PRP-2026-014",lt:"12 wk"};
   s.dates.define={s:"2026-09-02",f:"2026-09-09"}; s.dates.measure={s:"2026-09-09",f:"2026-09-23"};
   s.define.initial="Nel Q2 il 6,4% delle spedizioni di kit guarnizioni è partito con almeno un codice errato o mancante, generando 38 reclami cliente e 21 rispedizioni urgenti.";
   s.define.w={why:"Genera reclami, rispedizioni urgenti e costi di trasporto extra (≈ 14 k€ nel trimestre)",
@@ -403,16 +409,16 @@ function demo(){
     {t:"Riordino lista di prelievo per percorso di ubicazione",impact:5,effort:7,pick:false},
     {t:"Nuovo terminale RF per tutta l'area",impact:4,effort:9,pick:false}];
   s.improve.actions=[
-    {t:"Definire codice colore famiglie e stampare nuove etichette corsia G-H",o:"Warehouse sup.",d:"2026-10-03"},
-    {t:"Configurare scansione obbligatoria a fine kit sul WMS",o:"IT / Logistica",d:"2026-10-17"},
-    {t:"Scrivere lo standard di addestramento picking (1 pagina + check)",o:"OD / ALPS",d:"2026-10-10"},
-    {t:"Formare i 9 picker sul nuovo standard",o:"Warehouse sup.",d:"2026-10-31"},
-    {t:"Aggiungere KPI qualità picking al visual board di reparto",o:"OD / ALPS",d:"2026-11-07"}];
-  s.control.rows[0].w="STW 45"; s.control.rows[0].o="Team"; s.control.rows[0].done=true;
-  s.control.rows[1].w="STW 46"; s.control.rows[1].o="Warehouse sup.";
-  s.control.rows[2].w="STW 47"; s.control.rows[2].o="OD / ALPS";
-  s.control.rows[3].w="STW 47"; s.control.rows[3].o="Warehouse sup.";
-  s.control.rows[4].w="STW 50"; s.control.rows[4].o="Sponsor";
+    {t:"Definire codice colore famiglie e stampare nuove etichette corsia G-H",o:"Warehouse sup.",d:"2026-10-03",s:"done"},
+    {t:"Configurare scansione obbligatoria a fine kit sul WMS",o:"IT / Logistica",d:"2026-10-17",s:"ongoing"},
+    {t:"Scrivere lo standard di addestramento picking (1 pagina + check)",o:"OD / ALPS",d:"2026-10-10",s:"ongoing"},
+    {t:"Formare i 9 picker sul nuovo standard",o:"Warehouse sup.",d:"2026-10-31",s:"todo"},
+    {t:"Aggiungere KPI qualità picking al visual board di reparto",o:"OD / ALPS",d:"2026-11-07",s:"hold"}];
+  s.control.rows[0].w="W45"; s.control.rows[0].o="Team"; s.control.rows[0].done=true;
+  s.control.rows[1].w="W46"; s.control.rows[1].o="Warehouse sup.";
+  s.control.rows[2].w="W47"; s.control.rows[2].o="OD / ALPS";
+  s.control.rows[3].w="W47"; s.control.rows[3].o="Warehouse sup.";
+  s.control.rows[4].w="W50"; s.control.rows[4].o="Sponsor";
   return s;
 }
 var KEY = "a3nav.v1";
@@ -528,7 +534,7 @@ function viewHome(){
     '<div class="f"><label>'+L({it:"Priorità",en:"Priority"})+' (SQDC)</label><div class="sqdc">'+
       ["S","Q","D","C"].map(function(v){return '<button data-act="sqdc" data-v="'+v+'" aria-pressed="'+(m.priority===v)+'">'+v+'</button>';}).join("")+
       '</div><div class="sub">'+L({it:"Safety · Quality · Delivery · Cost",en:"Safety · Quality · Delivery · Cost"})+'</div></div>'+
-    fld("PRP #","meta.prp")+ fld("PRP L/T","meta.lt",L({it:"Es. 12 settimane",en:"e.g. 12 weeks"}))+ fld("STW","meta.stw")+
+    fld("PRP #","meta.prp")+ fld("PRP L/T","meta.lt",L({it:"Es. 12 settimane",en:"e.g. 12 weeks"}))+
     '</div></div>';
   h += '<div class="card" style="--ph:var(--accent)"><h3><span class="tag">DMAIC</span>'+L({it:"Come funziona",en:"How this works"})+'</h3>'+
     '<p class="hint">'+L({it:"Cinque fasi, un gate consultivo alla fine di ognuna. Nulla è bloccato: la percentuale ti dice cosa manca prima di presentare. Tutto ciò che scrivi confluisce automaticamente nell'A3 finale, pronto da stampare in orizzontale.",en:"Five phases, an advisory gate at the end of each. Nothing is locked: the percentage tells you what is still missing before you present. Everything you type flows into the final A3, ready to print in landscape."})+'</p>'+
@@ -673,6 +679,20 @@ function viewAnalyze(){
   return h + gate("analyze");
 }
 
+var ASTAT = [
+  {k:"todo",      n:{it:"Da avviare",en:"Not started"}, c:"var(--ink-3)",  short:{it:"da avviare",en:"not started"}},
+  {k:"ongoing",   n:{it:"In corso",   en:"On going"},   c:"var(--p1)",     short:{it:"in corso",en:"on going"}},
+  {k:"done",      n:{it:"Completata", en:"Done"},       c:"var(--ok)",     short:{it:"completata",en:"done"}},
+  {k:"hold",      n:{it:"Sospesa",    en:"On hold"},    c:"var(--warn)",   short:{it:"sospesa",en:"on hold"}},
+  {k:"cancelled", n:{it:"Annullata",  en:"Cancelled"},  c:"var(--ink-3)",  short:{it:"annullata",en:"cancelled"}}
+];
+function ASTAT_K(a){
+  var k = a && a.s;
+  for(var i=0;i<ASTAT.length;i++){ if(ASTAT[i].k===k) return k; }
+  return "todo";
+}
+function ASTAT_O(a){ var k = ASTAT_K(a); for(var i=0;i<ASTAT.length;i++){ if(ASTAT[i].k===k) return ASTAT[i]; } return ASTAT[0]; }
+
 function matrixSVG(sols, dark){
   var ink = dark ? "#E7EDEA" : "#15201E", soft = dark ? "#8FA09A" : "#5B6763";
   var q = [["#DAEAF6","#2471A3","Quick Wins","(High Impact, Low Effort)",0,0],
@@ -737,10 +757,13 @@ function viewImprove(){
     '<p class="hint">'+L({it:"Azione, responsabile, data. Se una casella resta vuota, l'azione non parte.",en:"Action, owner, due date. If one box stays empty, the action will not happen."})+'</p>'+
     '<div class="acts"><span></span><span class="hd">'+L({it:"Azione",en:"Action"})+'</span><span class="hd">Owner</span><span class="hd">'+L({it:"Scadenza",en:"Due"})+'</span><span class="hd">'+L({it:"Stato",en:"Status"})+'</span></div>'+
     S.improve.actions.map(function(a,i){
-      var st = (filled(a.t)&&filled(a.o)&&filled(a.d));
+      var cur = ASTAT_K(a);
       return '<div class="acts"><div class="id">A'+(i+1)+'</div>'+inp("improve.actions."+i+".t","")+inp("improve.actions."+i+".o","")+inp("improve.actions."+i+".d","","date")+
-        '<span class="pill '+(st?"done":"open")+'">'+(st?L({it:"pronta",en:"ready"}):L({it:"da completare",en:"incomplete"}))+'</span></div>';
-    }).join("")+'</div>';
+        '<select class="stsel st-'+cur+'" data-act="astatus" data-v="'+i+'">'+
+        ASTAT.map(function(o){ return '<option value="'+o.k+'"'+(o.k===cur?" selected":"")+'>'+esc(L(o.n))+'</option>'; }).join("")+
+        '</select></div>';
+    }).join("")+
+    '<p class="hint" style="margin:12px 0 0">'+L({it:"Lo stato è tuo: l'app non lo deduce. Aggiornalo nelle riunioni di avanzamento — è la colonna che si guarda per prima.",en:"The status is yours: the app does not infer it. Update it in progress reviews — it is the column people look at first."})+'</p></div>';
   return h + gate("improve");
 }
 
@@ -762,7 +785,7 @@ function viewControl(){
     '<span style="font-family:var(--f-mono);font-size:10px;text-transform:uppercase;color:var(--ink-3)">'+L({it:"Stato",en:"Status"})+'</span></div>'+
     S.control.rows.map(function(r,i){
       return '<div class="ctrl-row"><div style="font-size:13px">'+esc(L(r.k))+'</div>'+
-        inp("control.rows."+i+".w", "STW")+inp("control.rows."+i+".o","")+
+        inp("control.rows."+i+".w", L({it:"es. W45",en:"e.g. W45"}))+inp("control.rows."+i+".o","")+
         '<button class="btn" data-act="ctrlDone" data-v="'+i+'" style="'+(r.done?"border-color:var(--ok);color:var(--ok)":"")+'">'+(r.done?"✓ "+L({it:"fatto",en:"done"}):L({it:"aperto",en:"open"}))+'</button></div>';
     }).join("")+'</div>';
   return h + gate("control");
@@ -948,7 +971,6 @@ function viewGuide(){
       ["A1-A5",{it:"Le azioni del piano di miglioramento",en:"The improvement plan actions"}],
       ["SQDC",{it:"Safety, Quality, Delivery, Cost: la priorità del progetto",en:"Safety, Quality, Delivery, Cost: the project priority"}],
       ["L/T",{it:"Lead time: durata prevista del progetto",en:"Lead time: expected project duration"}],
-      ["STW",{it:"Settimana di calendario (standard week)",en:"Standard calendar week"}],
       ["Gemba",{it:"Il luogo reale dove si svolge il lavoro",en:"The real place where the work happens"}],
       ["Muda",{it:"Spreco: attività che non aggiunge valore per il cliente",en:"Waste: activity that adds no value for the customer"}],
       ["6M",{it:"Le categorie dell'Ishikawa: persone, macchine, metodo, materiali, misura, ambiente",en:"Fishbone categories: people, machine, method, material, measurement, environment"}],
@@ -1003,7 +1025,7 @@ function viewReport(){
     '<dl class="kv"><dt>'+L({it:"Data",en:"Date"})+'</dt><dd>'+esc(m.date)+'</dd><dt>Team</dt><dd>'+esc(m.team)+'</dd><dt>'+L({it:"Reparto",en:"Dept"})+'</dt><dd>'+esc(m.dept)+'</dd></dl>'+
     '<dl class="kv"><dt>'+L({it:"Leader",en:"Leader"})+'</dt><dd>'+esc(m.leader)+'</dd><dt>PRP #</dt><dd>'+esc(m.prp)+'</dd><dt>PRP L/T</dt><dd>'+esc(m.lt)+'</dd></dl>'+
     '<div><div class="s-sqdc">'+["S","Q","D","C"].map(function(v){return '<i data-v="'+v+'" class="'+(m.priority===v?"on":"")+'">'+v+'</i>';}).join("")+'</div>'+
-    '<div style="text-align:right;font-family:var(--f-mono);font-size:8.5px;color:#5B6763;margin-top:4px">'+L({it:"PRIORITÀ ALFA LAVAL",en:"PRIORITY"})+' · '+esc(m.stw)+'</div></div></div>';
+    '<div style="text-align:right;font-family:var(--f-mono);font-size:8.5px;color:#5B6763;margin-top:4px">'+L({it:"PRIORITÀ",en:"PRIORITY"})+'</div></div></div>';
 
   h += '<div class="cols">';
   /* ---- column 1: define + measure ---- */
@@ -1059,9 +1081,12 @@ function viewReport(){
       return '<tr><td class="idc">BS'+(i+1)+'</td><td>'+(picked[i]?esc(picked[i].t):'<span class="empty">—</span>')+'</td></tr>';
     }).join("")+'</table>'+
     '<span class="st">Step 4D – '+L({it:"Piano d'azione",en:"Action plan"})+'</span>'+
-    '<table><tr><th>ID</th><th>'+L({it:"Azione",en:"Action"})+'</th><th>Owner</th><th>'+L({it:"Scad.",en:"Due"})+'</th></tr>'+
+    '<table><tr><th>ID</th><th>'+L({it:"Azione",en:"Action"})+'</th><th>Owner</th><th>'+L({it:"Scad.",en:"Due"})+'</th><th>'+L({it:"Stato",en:"Status"})+'</th></tr>'+
       I.actions.map(function(a,i){
-        return '<tr><td class="idc">A'+(i+1)+'</td><td>'+(filled(a.t)?esc(a.t):'<span class="empty">—</span>')+'</td><td>'+esc(a.o)+'</td><td style="white-space:nowrap">'+esc(a.d)+'</td></tr>';
+        var o = ASTAT_O(a), hex = {todo:"#8A948F",ongoing:"#2471A3",done:"#1E8449",hold:"#B4552D",cancelled:"#A9B2AE"}[o.k];
+        return '<tr><td class="idc">A'+(i+1)+'</td><td'+(o.k==="cancelled"?' style="text-decoration:line-through;color:#8A948F"':'')+'>'+
+          (filled(a.t)?esc(a.t):'<span class="empty">—</span>')+'</td><td>'+esc(a.o)+'</td><td style="white-space:nowrap">'+esc(a.d)+'</td>'+
+          '<td style="white-space:nowrap;color:'+hex+'">● '+esc(L(o.short))+'</td></tr>';
       }).join("")+'</table>'+
     '</div></div>';
   h += '<div class="blk"><h5 style="background:'+"#4B5D67"+'"><span>5 · CONTROL</span><em>'+esc(S.dates.control.s)+' → '+esc(S.dates.control.f)+'</em></h5><div class="in">'+
@@ -1078,7 +1103,15 @@ function viewReport(){
 }
 
 /* ============================ render + events ============================ */
-function render(){
+function sigOf(el){
+  if(!el || !el.dataset) return null;
+  var d = el.dataset;
+  if(!d.act && !d.path) return null;
+  return (d.act||"")+"|"+(d.v||"")+"|"+(d.path||"");
+}
+/* keep: true = stay exactly where you are (a click inside the page, e.g. a vote) */
+function render(keep){
+  var y = window.scrollY, sig = keep ? sigOf(document.activeElement) : null;
   var v = document.getElementById("view");
   var map = {home:viewHome, define:viewDefine, measure:viewMeasure, analyze:viewAnalyze, improve:viewImprove, control:viewControl, report:viewReport, guide:viewGuide};
   v.innerHTML = (map[current] || viewHome)();
@@ -1095,11 +1128,24 @@ function render(){
   bg.style.color = current==="guide" ? "var(--accent)" : "";
   bg.style.borderColor = current==="guide" ? "var(--accent)" : "";
   document.getElementById("brandSub").textContent = L({it:"DMAIC · Problem solving guidato",en:"DMAIC · guided problem solving"});
-  window.scrollTo({top:0,behavior:"instant"});
+  if(keep){
+    window.scrollTo(0, y);
+    if(sig){
+      var all = document.querySelectorAll("[data-act],[data-path]");
+      for(var i=0;i<all.length;i++){
+        if(sigOf(all[i])===sig){ try{ all[i].focus({preventScroll:true}); }catch(err){ all[i].focus(); } break; }
+      }
+    }
+  } else {
+    window.scrollTo({top:0,behavior:"instant"});
+  }
 }
 document.addEventListener("input", function(e){
   var t = e.target;
   if(t.dataset && t.dataset.path){ set(t.dataset.path, t.value); save(); renderStepper(); return; }
+  if(t.dataset && t.dataset.act==="astatus"){
+    S.improve.actions[+t.dataset.v].s = t.value; save(); render(true); return;
+  }
   if(t.dataset && t.dataset.act==="slider"){
     var a = t.dataset.v.split(","); S.improve.sols[+a[0]][a[1]] = +t.value; save();
     var lab = t.parentNode.querySelector("label span:last-child"); if(lab) lab.textContent = t.value;
@@ -1107,6 +1153,10 @@ document.addEventListener("input", function(e){
     if(host) host.innerHTML = matrixSVG(S.improve.sols, document.documentElement.dataset.theme==="dark" || (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches));
   }
 });
+function focusLast(ci){
+  var rows = document.querySelectorAll('[data-path^="measure.cats.'+ci+'.causes."]');
+  if(rows.length) rows[rows.length-1].focus({preventScroll:true});
+}
 document.addEventListener("click", function(e){
   var b = e.target.closest("[data-act]"); if(!b) return;
   var act = b.dataset.act, v = b.dataset.v;
@@ -1124,25 +1174,25 @@ document.addEventListener("click", function(e){
     r.dataset.theme = cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
     if(current==="improve"||current==="report") render();
   }
-  else if(act==="sqdc"){ S.meta.priority = (S.meta.priority===v?"":v); save(); render(); }
-  else if(act==="addLane"){ S.measure.lanes.push({d:"",c:["","","","",""]}); save(); render(); }
-  else if(act==="delLane"){ S.measure.lanes.splice(+v,1); save(); render(); }
-  else if(act==="addCause"){ S.measure.cats[+v].causes.push({t:"",v:0}); save(); render(); }
-  else if(act==="delCause"){ var a = v.split(","); S.measure.cats[+a[0]].causes.splice(+a[1],1); save(); render(); }
-  else if(act==="vote"){ var q = v.split(","); var c = S.measure.cats[+q[0]].causes[+q[1]]; c.v = (c.v||0)+1; save(); render(); }
+  else if(act==="sqdc"){ S.meta.priority = (S.meta.priority===v?"":v); save(); render(true); }
+  else if(act==="addLane"){ S.measure.lanes.push({d:"",c:["","","","",""]}); save(); render(true); }
+  else if(act==="delLane"){ S.measure.lanes.splice(+v,1); save(); render(true); }
+  else if(act==="addCause"){ S.measure.cats[+v].causes.push({t:"",v:0}); save(); render(true); focusLast(+v); }
+  else if(act==="delCause"){ var a = v.split(","); S.measure.cats[+a[0]].causes.splice(+a[1],1); save(); render(true); }
+  else if(act==="vote"){ var q = v.split(","); var c = S.measure.cats[+q[0]].causes[+q[1]]; c.v = (c.v||0)+1; save(); render(true); }
   else if(act==="pick"){
     var idx = S.measure.picks.indexOf(v);
     if(idx>=0){ S.measure.picks[idx] = ""; }
     else { var slot = S.measure.picks.findIndex(function(x){return !filled(x);}); if(slot<0) slot = 2; S.measure.picks[slot] = v; }
-    save(); render();
+    save(); render(true);
   }
   else if(act==="pin"){
     var s = S.improve.sols[+v];
     var n = S.improve.sols.filter(function(x){return x.pick;}).length;
     if(!s.pick && n>=3){ s.pick = true; } else { s.pick = !s.pick; }
-    save(); render();
+    save(); render(true);
   }
-  else if(act==="ctrlDone"){ S.control.rows[+v].done = !S.control.rows[+v].done; save(); render(); }
+  else if(act==="ctrlDone"){ S.control.rows[+v].done = !S.control.rows[+v].done; save(); render(true); }
   else if(act==="print"){ window.print(); }
   else if(act==="export"){ doExport(b); }
   else if(act==="import"){ document.getElementById("fileIn").click(); }
