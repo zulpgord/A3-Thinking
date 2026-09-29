@@ -147,6 +147,8 @@ textarea{resize:vertical;min-height:64px}
 .addrow{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-top:2px}
 .fish-problem{background:var(--surface-2);border:1px solid var(--line-soft);border-left:3px solid var(--p3);border-radius:var(--r);padding:9px 12px;margin-bottom:12px;font-size:13px}
 .fish-problem b{font-family:var(--f-mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:var(--p3);display:block;margin-bottom:3px}
+.fishwrap{background:#fff;border:1px solid var(--line-soft);border-radius:var(--r);padding:10px}
+.fishwrap svg{width:100%;height:auto;display:block}
 
 /* 5 whys */
 .why{border:1px solid var(--line-soft);border-radius:var(--r);background:var(--surface);overflow:hidden}
@@ -219,10 +221,20 @@ textarea{resize:vertical;min-height:64px}
 .dash-card .bar i{display:block;height:100%;background:var(--ph);border-radius:3px}
 .dash-card .pct{font-family:var(--f-mono);font-size:16px;color:var(--ink)}
 .timeline{display:flex;flex-direction:column;gap:10px}
+.tl-axis{display:grid;grid-template-columns:120px 1fr;gap:10px;margin-bottom:2px}
+.tl-axis-track{position:relative;height:20px;border-bottom:1px solid var(--line-soft)}
+.tl-tick{position:absolute;top:0;bottom:0;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center}
+.tl-tick i{display:block;width:1px;flex:1;background:var(--line-soft)}
+.tl-tick span{font-family:var(--f-mono);font-size:9px;letter-spacing:.02em;color:var(--ink-3);white-space:nowrap;margin-bottom:2px}
+.tl-today{position:absolute;top:0;bottom:0;width:1px;background:var(--warn);z-index:2}
+.tl-today em{position:absolute;top:-13px;left:2px;font-style:normal;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);white-space:nowrap}
 .tl-row{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}
 .tl-row .lbl{font-family:var(--f-disp);font-weight:600;font-size:12.5px;color:var(--ph)}
-.tl-track{position:relative;height:22px;background:var(--surface-2);border-radius:4px}
-.tl-bar{position:absolute;top:2px;bottom:2px;background:var(--ph);border-radius:3px;min-width:6px}
+.tl-track{position:relative;height:22px;background:var(--surface-2);border-radius:4px;overflow:hidden}
+.tl-grid{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.06)}
+:root[data-theme="dark"] .tl-grid{background:rgba(255,255,255,.08)}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tl-grid{background:rgba(255,255,255,.08)}}
+.tl-bar{position:absolute;top:2px;bottom:2px;background:var(--ph);border-radius:3px;min-width:6px;z-index:1}
 .tl-dates{display:flex;gap:8px;margin-top:3px}
 .tl-dates div{width:130px}
 .tl-empty{color:var(--ink-3);font-size:12.5px}
@@ -600,17 +612,51 @@ function gate(k){
 
 /* ============================ views ============================ */
 function parseDate(s){ var d = s ? new Date(s+"T00:00:00") : null; return (d && !isNaN(d.getTime())) ? d : null; }
+function monthTicks(min, max){
+  var d = new Date(min); d.setDate(1); d.setHours(0,0,0,0);
+  var out = [];
+  while(d.getTime() <= max){
+    if(d.getTime() >= min) out.push(d.getTime());
+    d = new Date(d.getFullYear(), d.getMonth()+1, 1);
+  }
+  if(!out.length) out.push(min);
+  return out;
+}
+function fmtMonth(t){
+  try{ return new Date(t).toLocaleDateString(LANG==="it"?"it-IT":"en-GB", {month:"short", year:"2-digit"}); }
+  catch(e){ return ""; }
+}
+function tlAxis(min, max){
+  var ticks = monthTicks(min, max);
+  var today = Date.now(), showToday = today>=min && today<=max;
+  var marks = ticks.map(function(t){
+    var left = (t-min)/(max-min)*100;
+    return '<div class="tl-tick" style="left:'+left.toFixed(2)+'%"><span>'+esc(fmtMonth(t))+'</span><i></i></div>';
+  }).join("");
+  if(showToday){
+    var tl = (today-min)/(max-min)*100;
+    marks += '<div class="tl-today" style="left:'+tl.toFixed(2)+'%"><em>'+L({it:"oggi",en:"today"})+'</em></div>';
+  }
+  return '<div class="tl-axis"><div></div><div class="tl-axis-track">'+marks+'</div></div>';
+}
+function tlGridlines(min, max){
+  return monthTicks(min, max).map(function(t){
+    var left = (t-min)/(max-min)*100;
+    return '<i class="tl-grid" style="left:'+left.toFixed(2)+'%"></i>';
+  }).join("");
+}
 function tlRows(spans, min, max){
   return '<div class="timeline">'+spans.map(function(x){
-    var bar = "";
+    var bar = "", grid = "";
     if(min!=null && x.s){
       var s = x.s.getTime(), f = x.f ? x.f.getTime() : s;
       if(f<s) f = s;
       var left = (s-min)/(max-min)*100, width = Math.max((f-s)/(max-min)*100, 1.2);
       bar = '<div class="tl-bar" style="left:'+left.toFixed(2)+'%;width:'+width.toFixed(2)+'%;background:'+x.p.color+'"></div>';
     }
+    if(min!=null) grid = tlGridlines(min, max);
     return '<div class="tl-row"><div class="lbl" style="color:'+x.p.color+'">'+L(x.p.name)+'</div><div>'+
-      '<div class="tl-track">'+bar+'</div>'+
+      '<div class="tl-track">'+grid+bar+'</div>'+
       '<div class="tl-dates"><div>'+inp("dates."+x.p.key+".s","","date")+'</div><div>'+inp("dates."+x.p.key+".f","","date")+'</div></div>'+
       '</div></div>';
   }).join("")+'</div>';
@@ -625,7 +671,7 @@ function timelineHTML(){
   known.forEach(function(x){ if(x.s) all.push(x.s.getTime()); if(x.f) all.push(x.f.getTime()); });
   var min = Math.min.apply(null,all), max = Math.max.apply(null,all);
   if(min===max) max = min + 86400000;
-  return tlRows(spans, min, max);
+  return tlAxis(min, max) + tlRows(spans, min, max);
 }
 function viewDashboard(){
   var m = S.meta;
@@ -779,7 +825,10 @@ function viewMeasure(){
         }).join("")+
         '<div class="addrow"><button class="btn" data-act="addCause" data-v="'+ci+'" style="padding:4px 9px;font-size:12px">+ '+L({it:"causa",en:"cause"})+'</button></div>'+
         '</div></div>';
-    }).join("")+'</div></div>';
+    }).join("")+'</div>'+
+    '<div class="fishwrap"><h4 style="font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 8px">'+
+      L({it:"Diagramma a lisca di pesce",en:"Fishbone diagram"})+'</h4>'+fishSVG()+'</div>'+
+    '</div>';
   var ranked = [];
   S.measure.cats.forEach(function(c,ci){ c.causes.forEach(function(x){ if(filled(x.t)) ranked.push({t:x.t,v:x.v||0,c:L(CATS[ci])}); }); });
   ranked.sort(function(a,b){return b.v-a.v;});
