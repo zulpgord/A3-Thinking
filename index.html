@@ -51,9 +51,9 @@ input:focus-visible,textarea:focus-visible,select:focus-visible,button:focus-vis
 textarea{resize:vertical;min-height:64px}
 
 /* ---------- chrome ---------- */
-.wrap{max-width:min(1600px,96vw);margin:0 auto;padding:0 20px 72px}
+.wrap{max-width:min(1900px,94vw);margin:0 auto;padding:0 20px 72px}
 .top{position:sticky;top:0;z-index:30;background:color-mix(in srgb,var(--ground) 88%,transparent);backdrop-filter:blur(10px);border-bottom:1px solid var(--line-soft)}
-.top-in{max-width:min(1600px,96vw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
+.top-in{max-width:min(1900px,94vw);margin:0 auto;padding:12px 20px;display:flex;align-items:center;gap:16px;flex-wrap:wrap}
 .brand{display:flex;align-items:center;gap:10px;margin-right:auto}
 .brand-logo{flex:0 0 auto;display:block}
 .brand b{font-family:var(--f-disp);font-weight:700;font-size:17px;letter-spacing:-.02em}
@@ -530,7 +530,7 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",unit:"%",mode:"percent",baseline:"6.4",target:"1.5",costPerUnit:"220",volume:"594"};
   return s;
 }
-var APP_VERSION = "1.0.0";
+var APP_VERSION = "1.0.1";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 function save(){ try{ S.lang = LANG; S.appVersion = APP_VERSION; localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
