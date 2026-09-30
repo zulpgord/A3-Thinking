@@ -530,7 +530,7 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",unit:"%",mode:"percent",baseline:"6.4",target:"1.5",costPerUnit:"220",volume:"594"};
   return s;
 }
-var APP_VERSION = "1.0.1";
+var APP_VERSION = "1.1.0";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 function save(){ try{ S.lang = LANG; S.appVersion = APP_VERSION; localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -852,8 +852,11 @@ function viewMeasure(){
   var ranked = [];
   S.measure.cats.forEach(function(c,ci){ c.causes.forEach(function(x){ if(filled(x.t)) ranked.push({t:x.t,v:x.v||0,c:L(CATS[ci])}); }); });
   ranked.sort(function(a,b){return b.v-a.v;});
+  var paretoChart = paretoSVG(ranked, false);
   h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2D</span>'+L({it:"Dotmocracy – le 3 cause potenziali",en:"Dotmocracy – top 3 potential causes"})+'</h3>'+
     '<p class="hint">'+L({it:"Clicca una causa della classifica per assegnarla a PC1, PC2, PC3. Queste tre passano ad Analyze.",en:"Click a cause in the ranking to assign it to PC1, PC2, PC3. These three carry over into Analyze."})+'</p>'+
+    (paretoChart ? '<div class="fishwrap" style="margin-bottom:14px">'+paretoChart+'</div>'+
+      '<p class="hint" style="margin-top:-6px">'+L({it:"Pareto: barre = voti per causa, linea = % cumulata. La soglia all'80% separa le poche cause che spiegano la maggior parte del problema.",en:"Pareto: bars = votes per cause, line = cumulative %. The 80% threshold marks the few causes that explain most of the problem."})+'</p>' : '')+
     '<div class="grid2"><div>'+
       (ranked.length? ranked.slice(0,10).map(function(r){
         var on = S.measure.picks.indexOf(r.t)>=0;
@@ -908,6 +911,44 @@ function ASTAT_K(a){
 }
 function ASTAT_O(a){ var k = ASTAT_K(a); for(var i=0;i<ASTAT.length;i++){ if(ASTAT[i].k===k) return ASTAT[i]; } return ASTAT[0]; }
 
+function paretoSVG(ranked, dark){
+  var ink = dark ? "#E7EDEA" : "#15201E", soft = dark ? "#8FA09A" : "#5B6763", grid = dark ? "#33403F" : "#DDE2DF";
+  var items = ranked.slice(0,8);
+  var total = items.reduce(function(a,x){return a+(x.v||0);},0);
+  if(!total) return "";
+  var W=680,H=300,padL=70,padR=40,padT=16,padB=76;
+  var plotW=W-padL-padR, plotH=H-padT-padB;
+  var n=items.length, gap=plotW/n, bw=Math.min(gap*0.55,60);
+  var maxV=Math.max.apply(null, items.map(function(x){return x.v||0;}));
+  var cum=0, bars="", labels="", pts=[];
+  items.forEach(function(it,i){
+    cum += (it.v||0);
+    var pct = cum/total*100;
+    var x = padL+gap*i+(gap-bw)/2;
+    var barH = maxV? (it.v/maxV*plotH) : 0;
+    var y = padT+plotH-barH;
+    bars += '<rect x="'+x.toFixed(1)+'" y="'+y.toFixed(1)+'" width="'+bw.toFixed(1)+'" height="'+barH.toFixed(1)+'" fill="#A8761F" rx="2"/>';
+    bars += '<text x="'+(x+bw/2).toFixed(1)+'" y="'+(y-6).toFixed(1)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="'+ink+'">'+it.v+'</text>';
+    var lx=x+bw/2, ly=padT+plotH-(pct/100*plotH);
+    pts.push([lx,ly,pct]);
+    var labelY = padT+plotH+12;
+    labels += '<text x="'+lx.toFixed(1)+'" y="'+labelY+'" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="'+soft+'" transform="rotate(-35 '+lx.toFixed(1)+' '+labelY+')">'+esc(it.t.slice(0,24))+(it.t.length>24?"…":"")+'</text>';
+  });
+  var linePath = pts.map(function(pt,i){return (i===0?"M":"L")+pt[0].toFixed(1)+","+pt[1].toFixed(1);}).join(" ");
+  var dots = pts.map(function(pt){
+    return '<circle cx="'+pt[0].toFixed(1)+'" cy="'+pt[1].toFixed(1)+'" r="3" fill="#B4552D"/>'+
+      '<text x="'+pt[0].toFixed(1)+'" y="'+(pt[1]-8).toFixed(1)+'" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="9" fill="#B4552D">'+Math.round(pt[2])+'%</text>';
+  }).join("");
+  var y80 = padT+plotH-(80/100*plotH);
+  var s = '<svg viewBox="0 0 '+W+' '+H+'" role="img" aria-label="Pareto chart">';
+  s += '<line x1="'+padL+'" y1="'+padT+'" x2="'+padL+'" y2="'+(padT+plotH)+'" stroke="'+grid+'"/>';
+  s += '<line x1="'+padL+'" y1="'+(padT+plotH)+'" x2="'+(padL+plotW)+'" y2="'+(padT+plotH)+'" stroke="'+grid+'"/>';
+  s += '<line x1="'+padL+'" y1="'+y80.toFixed(1)+'" x2="'+(padL+plotW)+'" y2="'+y80.toFixed(1)+'" stroke="#B4552D" stroke-dasharray="3,3" opacity=".6"/>';
+  s += '<text x="'+(padL+plotW+4)+'" y="'+(y80+3).toFixed(1)+'" font-family="IBM Plex Mono, monospace" font-size="9" fill="#B4552D">80%</text>';
+  s += bars+'<path d="'+linePath+'" fill="none" stroke="#B4552D" stroke-width="2"/>'+dots+labels;
+  s += '</svg>';
+  return s;
+}
 function matrixSVG(sols, dark){
   var ink = dark ? "#E7EDEA" : "#15201E", soft = dark ? "#8FA09A" : "#5B6763";
   var q = [["#DAEAF6","#2471A3","Quick Wins","(High Impact, Low Effort)",0,0],
