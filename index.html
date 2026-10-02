@@ -284,6 +284,7 @@ textarea{resize:vertical;min-height:64px}
 .sheet .blk > h5{margin:0;font-family:var(--f-disp);font-size:12px;letter-spacing:.02em;padding:4px 7px;color:#fff;display:flex;align-items:center;gap:7px}
 .sheet .blk > h5 em{font-style:normal;margin-left:auto;font-family:var(--f-mono);font-size:8.5px;font-weight:400;opacity:.9}
 .sheet .blk > h5 img{width:22px;height:22px;object-fit:cover;border-radius:3px;border:1.5px solid rgba(255,255,255,.85);flex:0 0 auto}
+.sheet .swim-photo{display:block;width:100%;max-height:78px;object-fit:contain;object-position:left center;margin-top:4px;border:1px solid #DDE2DF;border-radius:3px;background:#FBFCFB}
 .sheet .blk .in{padding:6px 7px 7px}
 .sheet .st{font-family:var(--f-mono);font-size:8.5px;color:#A8562A;letter-spacing:.02em;margin:6px 0 3px;display:block}
 .sheet .st:first-child{margin-top:0}
@@ -445,7 +446,7 @@ function blank(){
       lanes:[{d:"",c:["","","","",""],types:["process","process","process","process","process"]},
         {d:"",c:["","","","",""],types:["process","process","process","process","process"]},
         {d:"",c:["","","","",""],types:["process","process","process","process","process"]}],
-      cats:CATS.map(function(){return {causes:[]};}), picks:["","",""], photo:""},
+      cats:CATS.map(function(){return {causes:[]};}), picks:["","",""], photo:"", swimlanePhoto:""},
     analyze:{chains:[0,1,2].map(function(){return {cause:"",whys:["","","","",""],root:""};}), photo:""},
     improve:{sols:[1,2,3,4,5].map(function(i){return {t:"",impact:5,effort:5,pick:false};}),
       actions:[1,2,3,4,5].map(function(){return {t:"",o:"",d:"",s:"todo"};}), photo:""},
@@ -455,24 +456,26 @@ function blank(){
       {k:{it:"Standard nuovo / aggiornato",en:"New / updated standard"},w:"",o:"",done:false},
       {k:{it:"Formazione erogata",en:"Training conducted"},w:"",o:"",done:false},
       {k:{it:"2° riunione di follow-up (chiusura)",en:"2nd follow-up meeting (closing)"},w:"",o:"",done:false}
-    ], saving:{metric:"",unit:"",mode:"percent",baseline:"",target:"",costPerUnit:"",volume:""}, photo:""}
+    ], saving:{metric:"",value:"",unit:"",notes:""}, photo:""}
   };
 }
-function savingValue(sv){
-  var b = parseFloat(String(sv.baseline).replace(",",".")), t = parseFloat(String(sv.target).replace(",",".")),
-    c = parseFloat(String(sv.costPerUnit).replace(",",".")), vol = parseFloat(String(sv.volume).replace(",","."));
-  if(isNaN(b) || isNaN(t) || isNaN(c)) return null;
-  var mult = sv.mode==="percent" ? (isNaN(vol)?0:vol/100) : 1;
-  return (b - t) * c * mult;
+function savingNum(sv){
+  var v = parseFloat(String(sv.value||"").replace(",","."));
+  return isNaN(v) ? null : v;
 }
-function fmtEUR(n){
-  try{ return new Intl.NumberFormat(LANG==="it"?"it-IT":"en-GB",{style:"currency",currency:"EUR",maximumFractionDigits:0}).format(n); }
-  catch(e){ return "€ "+Math.round(n); }
+function fmtNum(n){
+  try{ return new Intl.NumberFormat(LANG==="it"?"it-IT":"en-GB",{maximumFractionDigits:2}).format(n); }
+  catch(e){ return String(n); }
 }
-function savingResultHTML(val){
-  return val==null
-    ? '<p class="hint" style="margin-top:6px">'+L({it:"Compila baseline, target e costo unitario per vedere il calcolo.",en:"Fill in baseline, target and unit cost to see the calculation."})+'</p>'
-    : '<div class="pill done" style="font-size:14px;padding:8px 14px;margin-top:6px">'+L({it:"Saving stimato: ",en:"Estimated saving: "})+fmtEUR(val)+'</div>';
+function savingDisplay(sv){
+  var v = savingNum(sv);
+  return v==null ? null : fmtNum(v)+(filled(sv.unit)?" "+esc(sv.unit):"");
+}
+function savingResultHTML(sv){
+  var disp = savingDisplay(sv);
+  return disp==null
+    ? '<p class="hint" style="margin-top:6px">'+L({it:"Inserisci il valore del saving per vederlo qui e nel report.",en:"Enter the saving value to see it here and on the report."})+'</p>'
+    : '<div class="pill done" style="font-size:14px;padding:8px 14px;margin-top:6px">'+L({it:"Saving: ",en:"Saving: "})+disp+'</div>';
 }
 function migrate(o){
   if(o && o.measure && Array.isArray(o.measure.lanes)){
@@ -485,11 +488,23 @@ function migrate(o){
     });
   }
   if(o && o.control && !o.control.saving){
-    o.control.saving = {metric:"",unit:"",mode:"percent",baseline:"",target:"",costPerUnit:"",volume:""};
+    o.control.saving = {metric:"",value:"",unit:"",notes:""};
+  } else if(o && o.control && o.control.saving && typeof o.control.saving.value !== "string"){
+    var old = o.control.saving, computed = null;
+    var b = parseFloat(String(old.baseline).replace(",","."))
+      , t = parseFloat(String(old.target).replace(",","."))
+      , c = parseFloat(String(old.costPerUnit).replace(",","."))
+      , vol = parseFloat(String(old.volume).replace(",","."));
+    if(!isNaN(b) && !isNaN(t) && !isNaN(c)){
+      var mult = old.mode==="percent" ? (isNaN(vol)?0:vol/100) : 1;
+      computed = Math.round((b-t)*c*mult);
+    }
+    o.control.saving = {metric:old.metric||"", value:computed==null?"":String(computed), unit:(old.unit==="%"?"":(old.unit||"€")), notes:""};
   }
   ["define","measure","analyze","improve","control"].forEach(function(k){
     if(o && o[k] && typeof o[k].photo !== "string") o[k].photo = "";
   });
+  if(o && o.measure && typeof o.measure.swimlanePhoto !== "string") o.measure.swimlanePhoto = "";
   return o;
 }
 function demo(){
@@ -536,10 +551,10 @@ function demo(){
   s.control.rows[2].w="W47"; s.control.rows[2].o="OD / ALPS";
   s.control.rows[3].w="W47"; s.control.rows[3].o="Warehouse sup.";
   s.control.rows[4].w="W50"; s.control.rows[4].o="Sponsor";
-  s.control.saving={metric:"Reclami e rispedizioni urgenti",unit:"%",mode:"percent",baseline:"6.4",target:"1.5",costPerUnit:"220",volume:"594"};
+  s.control.saving={metric:"Reclami e rispedizioni urgenti",value:"6403",unit:"€",notes:"Stima: (6,4%-1,5%) × 594 spedizioni/trimestre × 220 € di costo medio per reclamo/rispedizione urgente. Annualizzato su 4 trimestri comparabili al Q2."};
   return s;
 }
-var APP_VERSION = "1.2.0";
+var APP_VERSION = "1.3.0";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 function save(){ try{ S.lang = LANG; S.appVersion = APP_VERSION; localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
@@ -733,11 +748,11 @@ function viewDashboard(){
     L({it:"Pianificazione per fase",en:"Phase schedule"})+'</h3>'+
     '<p class="hint">'+L({it:"Sono le stesse date di ogni fase: modificale qui o dentro la fase, restano sincronizzate.",en:"These are the same dates as each phase: edit them here or inside the phase, they stay in sync."})+'</p>'+
     timelineHTML()+'</div>';
-  var sv = S.control.saving, val = savingValue(sv);
+  var sv = S.control.saving, svDisp = savingDisplay(sv);
   h += '<div class="card saving-tile" style="--ph:var(--p5)"><h3><span class="tag" style="background:var(--p5)">SAVING</span>'+
-    L({it:"Saving stimato",en:"Estimated saving"})+'</h3>'+
-    (val==null ? '<p class="hint">'+L({it:"Compila baseline, target e costo unitario in Control per calcolarlo.",en:"Fill in baseline, target and unit cost in Control to compute it."})+'</p>'
-      : '<div class="amt"><small>'+esc(sv.metric||L({it:"Saving annuo stimato",en:"Estimated annual saving"}))+'</small>'+fmtEUR(val)+'</div>')+
+    L({it:"Saving",en:"Saving"})+'</h3>'+
+    (svDisp==null ? '<p class="hint">'+L({it:"Inserisci il valore del saving in Control.",en:"Enter the saving value in Control."})+'</p>'
+      : '<div class="amt"><small>'+esc(sv.metric||L({it:"Saving stimato",en:"Estimated saving"}))+'</small>'+svDisp+'</div>')+
     '<button class="btn" style="margin-top:10px" data-act="go" data-v="control">'+L({it:"Apri Control →",en:"Open Control →"})+'</button></div></div>';
   return h;
 }
@@ -785,9 +800,9 @@ function viewDefine(){
     ["why",  {it:"<b>Perché</b> è un problema?",en:"<b>Why</b> is this a problem?"}, {it:"Impatto su sicurezza, cliente, costo, tempo",en:"Impact on safety, customer, cost, time"}],
     ["where",{it:"<b>Dove</b> si verifica?",en:"<b>Where</b> is it occurring?"}, {it:"Linea, area, macchina, ufficio",en:"Line, area, machine, office"}],
     ["who",  {it:"<b>Chi</b> ne è colpito?",en:"<b>Who</b> is affected?"}, {it:"Cliente interno o esterno",en:"Internal or external customer"}],
-    ["what", {it:"<b>Cosa</b> riguarda il problema?",en:"<b>What</b> is the problem about?"}, {it:"Prodotto, servizio, documento, flusso",en:"Product, service, document, flow"}],
+    ["what", {it:"<b>Cosa</b> è il problema?",en:"<b>What</b> is the problem about?"}, {it:"Prodotto, servizio, documento, flusso",en:"Product, service, document, flow"}],
     ["when", {it:"<b>Quando</b> si verifica?",en:"<b>When</b> is it occurring?"}, {it:"Da quando, con che frequenza, in quale turno",en:"Since when, how often, which shift"}],
-    ["how",  {it:"<b>Come</b> sai che è un problema?",en:"<b>How</b> do you know it is a problem?"}, {it:"Fonte del dato: reclami, scarti, misure",en:"Data source: complaints, scrap, measurements"}],
+    ["how",  {it:"<b>Come</b> si sa che è un problema?",en:"<b>How</b> do you know it is a problem?"}, {it:"Fonte del dato: reclami, scarti, misure",en:"Data source: complaints, scrap, measurements"}],
     ["many", {it:"<b>Quanti</b> difetti, pezzi, ore?",en:"<b>How many</b> defects, units, hours?"}, {it:"Il numero che rende il problema misurabile",en:"The number that makes it measurable"}]
   ];
   var h = phaseHead(p, L({it:"Un problema ben definito è mezzo risolto. Qui non si cercano cause né soluzioni: si delimita il fenomeno con i fatti.",en:"A well-defined problem is half solved. No causes and no solutions here: you bound the phenomenon with facts."}));
@@ -835,7 +850,9 @@ function viewMeasure(){
     }).join("")+'</div>'+
     '<button class="btn" style="margin-top:10px" data-act="addStep">+ '+L({it:"Aggiungi fase",en:"Add step"})+'</button></div>';
   h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2B</span>'+L({it:"Swimlane – chi fa cosa",en:"Swimlane – who does what"})+'</h3>'+
-    '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ogni macro-fase. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano. Il pulsante ◇ marca uno step come punto di decisione.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs. The ◇ button marks a step as a decision point."})+'</p>'+
+    '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ogni macro-fase. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano. Il pulsante ◇ marca uno step come punto di decisione. Se preferisci, in alternativa (o in aggiunta) puoi allegare la foto di una mappatura fatta a mano.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs. The ◇ button marks a step as a decision point. If you prefer, as an alternative (or in addition) you can attach a photo of a mapping done by hand."})+'</p>'+
+    photoField("measure.swimlanePhoto")+
+    '<div style="margin-top:14px">'+
     S.measure.lanes.map(function(l,i){
       return '<div class="lane"><div>'+inp("measure.lanes."+i+".d", L({it:"Reparto",en:"Department"}))+'</div>'+
         '<div class="cells" style="grid-template-columns:repeat('+nSteps+',1fr)">'+S.measure.steps.map(function(_,j){
@@ -845,7 +862,8 @@ function viewMeasure(){
         }).join("")+'</div>'+
         '<button class="mini" data-act="delLane" data-v="'+i+'" title="'+L({it:"Elimina riga",en:"Delete row"})+'">×</button></div>';
     }).join("")+
-    '<button class="btn" data-act="addLane">+ '+L({it:"Aggiungi reparto",en:"Add department"})+'</button></div>';
+    '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="addLane">+ '+L({it:"Aggiungi reparto",en:"Add department"})+'</button>'+
+    '<button class="btn" data-act="addStep">+ '+L({it:"Aggiungi fase",en:"Add step"})+'</button></div></div></div>';
   var totVotes = S.measure.cats.reduce(function(a,c){return a+c.causes.reduce(function(b,x){return b+(x.v||0);},0);},0);
   var fishEffect = S.define.restated || S.define.initial;
   h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2C</span>'+L({it:"Ishikawa – raccolta delle cause",en:"Fishbone – collect the causes"})+'</h3>'+
@@ -1064,24 +1082,18 @@ function viewControl(){
         inp("control.rows."+i+".w", L({it:"es. W45",en:"e.g. W45"}))+inp("control.rows."+i+".o","")+
         '<button class="btn" data-act="ctrlDone" data-v="'+i+'" style="'+(r.done?"border-color:var(--ok);color:var(--ok)":"")+'">'+(r.done?"✓ "+L({it:"fatto",en:"done"}):L({it:"aperto",en:"open"}))+'</button></div>';
     }).join("")+'</div>';
-  var sv = S.control.saving, savedVal = savingValue(sv);
-  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 5B</span>'+L({it:"Saving stimato",en:"Estimated saving"})+'</h3>'+
-    '<p class="hint">'+L({it:"Quantifica il beneficio economico atteso: differenza tra baseline e target, moltiplicata per il costo unitario (e per il volume annuo, se la metrica è in %).",en:"Quantify the expected economic benefit: the gap between baseline and target, times the unit cost (and the annual volume, if the metric is a %)."})+'</p>'+
+  var sv = S.control.saving;
+  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 5B</span>'+L({it:"Saving",en:"Saving"})+'</h3>'+
+    '<p class="hint">'+L({it:"Il saving è un valore che stimi tu, nell'unità che ha senso per questo progetto. Documenta il ragionamento nelle note: è quello che renderà credibile il numero allo sponsor.",en:"The saving is a value you estimate yourself, in whatever unit fits this project. Document the reasoning in the notes: that is what makes the number credible to a sponsor."})+'</p>'+
     '<div class="grid3">'+
       fld(L({it:"Metrica",en:"Metric"}),"control.saving.metric",L({it:"es. Reclami e rispedizioni",en:"e.g. Complaints & re-shipments"}))+
-      fld(L({it:"Unità",en:"Unit"}),"control.saving.unit",L({it:"es. %, pz, ore",en:"e.g. %, pcs, hrs"}))+
-      '<div class="f"><label>'+L({it:"Modalità",en:"Mode"})+'</label><div class="seg" style="width:100%">'+
-        ["percent","unit"].map(function(mv){
-          return '<button data-act="savemode" data-v="'+mv+'" aria-pressed="'+(sv.mode===mv)+'" style="flex:1">'+
-            (mv==="percent"?L({it:"% del volume",en:"% of volume"}):L({it:"Valore assoluto",en:"Absolute value"}))+'</button>';
-        }).join("")+'</div></div>'+
-    '</div><div class="grid3">'+
-      fld(L({it:"Baseline (stato attuale)",en:"Baseline (current state)"}),"control.saving.baseline","0")+
-      fld(L({it:"Target (stato futuro)",en:"Target (future state)"}),"control.saving.target","0")+
-      fld(L({it:"Costo unitario (€)",en:"Unit cost (€)"}),"control.saving.costPerUnit","0")+
+      fld(L({it:"Valore del saving",en:"Saving value"}),"control.saving.value","0")+
+      fld(L({it:"Unità di misura",en:"Unit of measure"}),"control.saving.unit",L({it:"es. €, DPMO, ore",en:"e.g. €, DPMO, hrs"}))+
     '</div>'+
-    (sv.mode==="percent" ? '<div class="grid3">'+fld(L({it:"Volume annuo",en:"Annual volume"}),"control.saving.volume","0")+'</div>' : '')+
-    '<div id="savingResult">'+savingResultHTML(savedVal)+'</div>'+
+    '<div class="f"><label>'+L({it:"Note di calcolo",en:"Calculation notes"})+'</label>'+
+      ta("control.saving.notes", L({it:"Come hai calcolato questo numero: ipotesi, periodo di riferimento, fonte dei dati…",en:"How you calculated this figure: assumptions, reference period, data source…"}), 3)+
+    '</div>'+
+    '<div id="savingResult">'+savingResultHTML(sv)+'</div>'+
     '</div>';
   return h + gate("control");
 }
@@ -1350,6 +1362,7 @@ function viewReport(){
           return '<td'+(dec?' class="dec"':'')+'>'+(filled(c)?esc(c):"")+'</td>';
         }).join("")+'</tr>';
       }).join("")+'</table>'+
+    (M.swimlanePhoto ? '<img src="'+M.swimlanePhoto+'" class="swim-photo" alt="">' : '')+
     '</div></div>';
   h += '</div>';
   /* ---- column 2: analyze ---- */
@@ -1393,11 +1406,11 @@ function viewReport(){
           '<td style="white-space:nowrap;color:'+hex+'">● '+esc(L(o.short))+'</td></tr>';
       }).join("")+'</table>'+
     '</div></div>';
-  var svR = S.control.saving, svVal = savingValue(svR);
+  var svR = S.control.saving, svDisp = savingDisplay(svR);
   h += '<div class="blk effect"><h5 style="background:'+"#1E8449"+'"><span>'+L({it:"CONFERMA EFFETTO",en:"EFFECT CONFIRMATION"})+'</span></h5><div class="in">'+
-    (svVal==null ? '<p class="empty">'+L({it:"Saving non ancora calcolato (compila baseline, target e costo unitario in Control).",en:"Saving not yet calculated (fill in baseline, target and unit cost in Control)."})+'</p>'
-      : '<table><tr><td class="k">'+esc(svR.metric||L({it:"Metrica",en:"Metric"}))+'</td><td>'+esc(svR.baseline)+' → '+esc(svR.target)+' '+esc(svR.unit)+'</td></tr></table>'+
-        '<div class="amt" style="margin-top:5px">'+L({it:"Saving stimato: ",en:"Estimated saving: "})+fmtEUR(svVal)+'</div>')+
+    (svDisp==null ? '<p class="empty">'+L({it:"Saving non ancora inserito (Control, Step 5B).",en:"Saving not yet entered (Control, Step 5B)."})+'</p>'
+      : '<div class="amt">'+(svR.metric?esc(svR.metric)+': ':'')+svDisp+'</div>'+
+        (filled(svR.notes)?'<p style="margin:4px 0 0;font-style:italic;color:#5B6763;font-size:8.5px">'+nl(svR.notes)+'</p>':''))+
     '</div></div>';
   h += '<div class="blk"><h5 style="background:'+"#4B5D67"+'"><span>5 · CONTROL</span><em>'+esc(S.dates.control.s)+' → '+esc(S.dates.control.f)+'</em>'+reportThumb(C.photo)+'</h5><div class="in">'+
     '<table><tr><th>'+L({it:"Elemento",en:"Item"})+'</th><th>Owner</th><th>'+L({it:"Settimana",en:"Week due"})+'</th><th>'+L({it:"Stato",en:"Status"})+'</th></tr>'+
@@ -1463,7 +1476,7 @@ document.addEventListener("input", function(e){
     set(t.dataset.path, t.value); save(); renderStepper();
     if(t.dataset.path.indexOf("control.saving.")===0){
       var box = document.getElementById("savingResult");
-      if(box) box.innerHTML = savingResultHTML(savingValue(S.control.saving));
+      if(box) box.innerHTML = savingResultHTML(S.control.saving);
     }
     return;
   }
@@ -1499,7 +1512,6 @@ document.addEventListener("click", function(e){
     if(current==="improve"||current==="report") render();
   }
   else if(act==="sqdc"){ S.meta.priority = (S.meta.priority===v?"":v); save(); render(true); }
-  else if(act==="savemode"){ S.control.saving.mode = v; save(); render(true); }
   else if(act==="addLane"){
     var nS = S.measure.steps.length;
     S.measure.lanes.push({d:"", c:Array(nS).fill(""), types:Array(nS).fill("process")});
