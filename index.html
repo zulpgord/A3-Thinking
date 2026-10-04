@@ -108,6 +108,13 @@ textarea{resize:vertical;min-height:64px}
 .card > h3{font-size:15px;display:flex;align-items:center;gap:9px;margin-bottom:3px}
 .tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;background:var(--ph);color:#fff;padding:2px 6px;border-radius:3px;flex:0 0 auto}
 .hint{color:var(--ink-3);font-size:12.5px;margin:0 0 12px;max-width:70ch}
+.card.acc{padding:0;overflow:hidden}
+.acc-head{width:100%;background:transparent;border:0;padding:16px 18px;margin:0;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+.acc-head:hover{background:var(--surface-2)}
+.acc-title{font-family:var(--f-disp);font-size:15px;font-weight:600}
+.acc-sub{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.acc-chev{font-family:var(--f-mono);font-size:17px;color:var(--ink-3);flex:0 0 auto;width:16px;text-align:center}
+.acc-body{padding:0 18px 18px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
 .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px}
 @media(max-width:720px){.grid2,.grid3{grid-template-columns:1fr}}
@@ -170,6 +177,7 @@ textarea{resize:vertical;min-height:64px}
 
 /* solutions + matrix */
 .sol{display:grid;grid-template-columns:44px 1fr 132px 132px 34px;gap:9px;align-items:center;margin-bottom:8px}
+.cause-ref{margin-top:4px;font-size:11px;padding:3px 6px;color:var(--ink-2);border-color:var(--line-soft)}
 .sol .id{font-family:var(--f-mono);font-size:12px;background:var(--p4);color:#fff;border-radius:3px;padding:5px 0;text-align:center}
 .sol .sl label{font-family:var(--f-mono);font-size:9.5px;letter-spacing:.05em;color:var(--ink-3);display:flex;justify-content:space-between}
 .sol input[type=range]{width:100%;accent-color:var(--p4);padding:0;border:0;background:transparent}
@@ -448,7 +456,7 @@ function blank(){
         {d:"",c:["","","","",""],types:["process","process","process","process","process"]}],
       cats:CATS.map(function(){return {causes:[]};}), picks:["","",""], photo:"", swimlanePhoto:""},
     analyze:{chains:[0,1,2].map(function(){return {cause:"",whys:["","","","",""],root:""};}), photo:""},
-    improve:{sols:[1,2,3,4,5].map(function(i){return {t:"",impact:5,effort:5,pick:false};}),
+    improve:{sols:[1,2,3,4,5].map(function(i){return {t:"",impact:5,effort:5,pick:false,causeRef:""};}),
       actions:[1,2,3,4,5].map(function(){return {t:"",o:"",d:"",s:"todo"};}), photo:""},
     control:{rows:[
       {k:{it:"1° riunione di follow-up",en:"1st follow-up meeting"},w:"",o:"",done:false},
@@ -505,6 +513,9 @@ function migrate(o){
     if(o && o[k] && typeof o[k].photo !== "string") o[k].photo = "";
   });
   if(o && o.measure && typeof o.measure.swimlanePhoto !== "string") o.measure.swimlanePhoto = "";
+  if(o && o.improve && Array.isArray(o.improve.sols)){
+    o.improve.sols.forEach(function(s){ if(typeof s.causeRef !== "string") s.causeRef = ""; });
+  }
   return o;
 }
 function demo(){
@@ -535,11 +546,11 @@ function demo(){
     {cause:"Nessun controllo 100% sui kit multi-codice",whys:["Il controllo è a campione sul 10%","Il controllo 100% è stato tolto per ridurre il tempo ciclo","Il tempo ciclo era il KPI dominante del reparto","Non esiste un KPI di qualità del picking",""],root:"Il sistema di KPI del magazzino premia la velocità senza contrappeso di qualità"},
     {cause:"Turnover alto nei picker stagionali",whys:["I picker stagionali restano in media 3 mesi","La formazione dura mezza giornata ed è affidata al collega di turno","Non esiste uno standard di addestramento scritto","",""],root:"Manca uno standard di addestramento per il picking dei kit"}];
   s.improve.sols=[
-    {t:"Etichetta ubicazione con codice colore per famiglia guarnizione",impact:8,effort:3,pick:true},
-    {t:"Controllo 100% con scansione barcode sui kit multi-codice",impact:9,effort:6,pick:true},
-    {t:"Standard di addestramento picking + affiancamento 3 giorni",impact:7,effort:4,pick:true},
-    {t:"Riordino lista di prelievo per percorso di ubicazione",impact:5,effort:7,pick:false},
-    {t:"Nuovo terminale RF per tutta l'area",impact:4,effort:9,pick:false}];
+    {t:"Etichetta ubicazione con codice colore per famiglia guarnizione",impact:8,effort:3,pick:true,causeRef:"0"},
+    {t:"Controllo 100% con scansione barcode sui kit multi-codice",impact:9,effort:6,pick:true,causeRef:"1"},
+    {t:"Standard di addestramento picking + affiancamento 3 giorni",impact:7,effort:4,pick:true,causeRef:"2"},
+    {t:"Riordino lista di prelievo per percorso di ubicazione",impact:5,effort:7,pick:false,causeRef:""},
+    {t:"Nuovo terminale RF per tutta l'area",impact:4,effort:9,pick:false,causeRef:""}];
   s.improve.actions=[
     {t:"Definire codice colore famiglie e stampare nuove etichette corsia G-H",o:"Warehouse sup.",d:"2026-10-03",s:"done"},
     {t:"Configurare scansione obbligatoria a fine kit sul WMS",o:"IT / Logistica",d:"2026-10-17",s:"ongoing"},
@@ -554,9 +565,10 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",value:"6403",unit:"€",notes:"Stima: (6,4%-1,5%) × 594 spedizioni/trimestre × 220 € di costo medio per reclamo/rispedizione urgente. Annualizzato su 4 trimestri comparabili al Q2."};
   return s;
 }
-var APP_VERSION = "1.3.0";
+var APP_VERSION = "1.4.0";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
+var measureOpen = "2a";
 function save(){ try{ S.lang = LANG; S.appVersion = APP_VERSION; localStorage.setItem(KEY, JSON.stringify(S)); }catch(e){} }
 function load(){
   try{ var raw = localStorage.getItem(KEY); if(raw){ var o = JSON.parse(raw); if(o && o.meta){ S = migrate(o); if(o.lang) LANG = o.lang; return true; } } }catch(e){}
@@ -648,6 +660,17 @@ function coach(title, purpose, how, traps){
   return '<div class="coach"><h4>'+esc(title)+'</h4><p style="margin:0 0 10px;color:var(--ink-2);max-width:72ch">'+esc(purpose)+'</p>'+
     '<div class="cols"><div><h4>'+L({it:"Come condurlo",en:"How to run it"})+'</h4><ul>'+how.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul></div>'+
     '<div><h4>'+L({it:"Errori tipici",en:"Common traps"})+'</h4><ul>'+traps.map(function(x){return "<li>"+esc(x)+"</li>";}).join("")+'</ul></div></div></div>';
+}
+function accCard(key, tag, title, bodyHtml, color, summary){
+  var open = measureOpen===key;
+  return '<div class="card acc" style="--ph:'+color+'">'+
+    '<button type="button" class="acc-head" data-act="toggleAcc" data-v="'+key+'" aria-expanded="'+open+'">'+
+      '<span class="tag">'+tag+'</span><span class="acc-title">'+esc(title)+'</span>'+
+      (summary?'<span class="acc-sub">'+esc(summary)+'</span>':'')+
+      '<span class="acc-chev">'+(open?'−':'+')+'</span>'+
+    '</button>'+
+    (open ? '<div class="acc-body">'+bodyHtml+'</div>' : '')+
+  '</div>';
 }
 function gate(k){
   var c = checks(k), miss = c.filter(function(x){return !x[1];});
@@ -842,15 +865,16 @@ function viewMeasure(){
      L({it:"Confondere causa e sintomo. «Il cliente si lamenta» è un sintomo.",en:"Mixing cause and symptom. “The customer complains” is a symptom."}),
      L({it:"Votare senza aver prima raccolto: si vota quello che si è detto per ultimo.",en:"Voting before collecting: people vote for whatever was said last."})]);
   var nSteps = S.measure.steps.length;
-  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2A</span>'+L({it:"Le macro-fasi del processo",en:"The main process steps"})+'</h3>'+
-    '<p class="hint">'+L({it:"Dall'innesco al risultato consegnato. Verbo + oggetto, poche parole.",en:"From trigger to delivered result. Verb + object, few words."})+'</p>'+
+  var body2A = '<p class="hint">'+L({it:"Dall'innesco al risultato consegnato. Verbo + oggetto, poche parole.",en:"From trigger to delivered result. Verb + object, few words."})+'</p>'+
     '<div class="pflow" style="grid-template-columns:repeat('+nSteps+',1fr)">'+S.measure.steps.map(function(s,i){
       return '<div class="pstep"><b>'+(i+1)+'</b>'+ta("measure.steps."+i,"",2)+
         (nSteps>3?'<button class="mini" data-act="delStep" data-v="'+i+'" title="'+L({it:"Elimina fase",en:"Delete step"})+'" style="margin-top:4px">×</button>':'')+'</div>';
     }).join("")+'</div>'+
-    '<button class="btn" style="margin-top:10px" data-act="addStep">+ '+L({it:"Aggiungi fase",en:"Add step"})+'</button></div>';
-  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2B</span>'+L({it:"Swimlane – chi fa cosa",en:"Swimlane – who does what"})+'</h3>'+
-    '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ogni macro-fase. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano. Il pulsante ◇ marca uno step come punto di decisione. Se preferisci, in alternativa (o in aggiunta) puoi allegare la foto di una mappatura fatta a mano.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs. The ◇ button marks a step as a decision point. If you prefer, as an alternative (or in addition) you can attach a photo of a mapping done by hand."})+'</p>'+
+    '<button class="btn" style="margin-top:10px" data-act="addStep">+ '+L({it:"Aggiungi fase",en:"Add step"})+'</button>';
+  h += accCard("2a", "STEP 2A", L({it:"Le macro-fasi del processo",en:"The main process steps"}), body2A, p.color,
+    S.measure.steps.filter(filled).length+"/"+nSteps+" "+L({it:"fasi",en:"steps"}));
+
+  var body2B = '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ogni macro-fase. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano. Il pulsante ◇ marca uno step come punto di decisione. Se preferisci, in alternativa (o in aggiunta) puoi allegare la foto di una mappatura fatta a mano.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs. The ◇ button marks a step as a decision point. If you prefer, as an alternative (or in addition) you can attach a photo of a mapping done by hand."})+'</p>'+
     photoField("measure.swimlanePhoto")+
     '<div style="margin-top:14px">'+
     S.measure.lanes.map(function(l,i){
@@ -863,11 +887,14 @@ function viewMeasure(){
         '<button class="mini" data-act="delLane" data-v="'+i+'" title="'+L({it:"Elimina riga",en:"Delete row"})+'">×</button></div>';
     }).join("")+
     '<div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn" data-act="addLane">+ '+L({it:"Aggiungi reparto",en:"Add department"})+'</button>'+
-    '<button class="btn" data-act="addStep">+ '+L({it:"Aggiungi fase",en:"Add step"})+'</button></div></div></div>';
+    '<button class="btn" data-act="addStep">+ '+L({it:"Aggiungi fase",en:"Add step"})+'</button></div></div>';
+  h += accCard("2b", "STEP 2B", L({it:"Swimlane – chi fa cosa",en:"Swimlane – who does what"}), body2B, p.color,
+    S.measure.lanes.filter(function(l){return filled(l.d);}).length+" "+L({it:"reparti",en:"depts"}));
+
   var totVotes = S.measure.cats.reduce(function(a,c){return a+c.causes.reduce(function(b,x){return b+(x.v||0);},0);},0);
+  var totCauses = S.measure.cats.reduce(function(a,c){return a+c.causes.filter(function(x){return filled(x.t);}).length;},0);
   var fishEffect = S.define.restated || S.define.initial;
-  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2C</span>'+L({it:"Ishikawa – raccolta delle cause",en:"Fishbone – collect the causes"})+'</h3>'+
-    '<p class="hint">'+L({it:"Sei categorie (6M). Aggiungi le cause e assegna i voti del team: ● aggiunge un voto, − lo toglie. Voti assegnati: ",en:"Six categories (6M). Add causes and assign the team's votes: ● adds a vote, − removes one. Votes cast: "})+totVotes+'</p>'+
+  var body2C = '<p class="hint">'+L({it:"Sei categorie (6M). Aggiungi le cause e assegna i voti del team: ● aggiunge un voto, − lo toglie. Voti assegnati: ",en:"Six categories (6M). Add causes and assign the team's votes: ● adds a vote, − removes one. Votes cast: "})+totVotes+'</p>'+
     '<div class="fish-problem"><b>'+L({it:"Problema in analisi (testa del pesce)",en:"Problem under analysis (fish head)"})+'</b>'+
     (filled(fishEffect) ? esc(fishEffect) : '<span style="color:var(--ink-3)">'+L({it:"— vai in Define e scrivi l'enunciato del problema —",en:"— go to Define and write the problem statement —"})+'</span>')+'</div>'+
     '<div class="fb">'+CATS.map(function(c,ci){
@@ -885,14 +912,15 @@ function viewMeasure(){
         '</div></div>';
     }).join("")+'</div>'+
     '<div class="fishwrap"><h4 style="font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin:16px 0 8px">'+
-      L({it:"Diagramma a lisca di pesce",en:"Fishbone diagram"})+'</h4>'+fishSVG()+'</div>'+
-    '</div>';
+      L({it:"Diagramma a lisca di pesce",en:"Fishbone diagram"})+'</h4>'+fishSVG()+'</div>';
+  h += accCard("2c", "STEP 2C", L({it:"Ishikawa – raccolta delle cause",en:"Fishbone – collect the causes"}), body2C, p.color,
+    totCauses+" "+L({it:"cause",en:"causes"})+", "+totVotes+" "+L({it:"voti",en:"votes"}));
+
   var ranked = [];
   S.measure.cats.forEach(function(c,ci){ c.causes.forEach(function(x){ if(filled(x.t)) ranked.push({t:x.t,v:x.v||0,c:L(CATS[ci])}); }); });
   ranked.sort(function(a,b){return b.v-a.v;});
   var paretoChart = paretoSVG(ranked, false);
-  h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 2D</span>'+L({it:"Dotmocracy – le 3 cause potenziali",en:"Dotmocracy – top 3 potential causes"})+'</h3>'+
-    '<p class="hint">'+L({it:"Clicca una causa della classifica per assegnarla a PC1, PC2, PC3. Queste tre passano ad Analyze.",en:"Click a cause in the ranking to assign it to PC1, PC2, PC3. These three carry over into Analyze."})+'</p>'+
+  var body2D = '<p class="hint">'+L({it:"Clicca una causa della classifica per assegnarla a PC1, PC2, PC3. Queste tre passano ad Analyze.",en:"Click a cause in the ranking to assign it to PC1, PC2, PC3. These three carry over into Analyze."})+'</p>'+
     (paretoChart ? '<div class="fishwrap" style="margin-bottom:14px">'+paretoChart+'</div>'+
       '<p class="hint" style="margin-top:-6px">'+L({it:"Pareto: barre = voti per causa, linea = % cumulata. La soglia all'80% separa le poche cause che spiegano la maggior parte del problema.",en:"Pareto: bars = votes per cause, line = cumulative %. The 80% threshold marks the few causes that explain most of the problem."})+'</p>' : '')+
     '<div class="grid2"><div>'+
@@ -904,7 +932,9 @@ function viewMeasure(){
       }).join("") : '<p class="hint">'+L({it:"Aggiungi prima qualche causa all'Ishikawa.",en:"Add some causes to the fishbone first."})+'</p>')+
     '</div><div>'+[0,1,2].map(function(i){
       return '<div class="f"><label>PC'+(i+1)+'</label>'+inp("measure.picks."+i, L({it:"causa potenziale "+(i+1),en:"potential cause "+(i+1)}))+'</div>';
-    }).join("")+'</div></div></div>';
+    }).join("")+'</div></div>';
+  h += accCard("2d", "STEP 2D", L({it:"Dotmocracy – le 3 cause potenziali",en:"Dotmocracy – top 3 potential causes"}), body2D, p.color,
+    S.measure.picks.filter(filled).length+"/3 "+L({it:"selezionate",en:"picked"}));
   return h + gate("measure");
 }
 
@@ -1018,6 +1048,11 @@ function matrixSVG(sols, dark){
   return s + '</svg>';
 }
 
+function rootShort(i){
+  var ch = S.analyze.chains[i];
+  var txt = (ch && filled(ch.root)) ? ch.root : (S.measure.picks[i]||"");
+  return "PC"+(i+1)+(filled(txt) ? ": "+txt.slice(0,34)+(txt.length>34?"…":"") : "");
+}
 function viewImprove(){
   var p = PHASES[3];
   var picks = S.improve.sols.filter(function(s){return s.pick && filled(s.t);});
@@ -1035,7 +1070,10 @@ function viewImprove(){
     '<p class="hint">'+L({it:"Fino a cinque. Sposta i cursori: la matrice qui sotto si aggiorna in tempo reale. Il pin ★ seleziona le tre soluzioni migliori (BS1-BS3).",en:"Up to five. Move the sliders: the matrix below updates live. The ★ pin selects your top three solutions (BS1-BS3)."})+'</p>'+
     S.improve.sols.map(function(so,i){
       return '<div class="sol"><div class="id">PS'+(i+1)+'</div>'+
-        '<div class="tx">'+inp("improve.sols."+i+".t", L({it:"soluzione…",en:"solution…"}))+'</div>'+
+        '<div class="tx">'+inp("improve.sols."+i+".t", L({it:"soluzione…",en:"solution…"}))+
+        '<select class="cause-ref" data-act="causeRef" data-v="'+i+'"><option value="">'+L({it:"— attacca quale causa radice? —",en:"— attacks which root cause? —"})+'</option>'+
+          [0,1,2].map(function(ci){ return '<option value="'+ci+'"'+(so.causeRef===String(ci)?" selected":"")+'>'+esc(rootShort(ci))+'</option>'; }).join("")+
+        '</select></div>'+
         '<div class="sl"><label><span>'+L({it:"Impatto",en:"Impact"})+'</span><span>'+so.impact+'</span></label><input type="range" min="1" max="10" value="'+so.impact+'" data-act="slider" data-v="'+i+',impact"></div>'+
         '<div class="sl"><label><span>'+L({it:"Effort",en:"Effort"})+'</span><span>'+so.effort+'</span></label><input type="range" min="1" max="10" value="'+so.effort+'" data-act="slider" data-v="'+i+',effort"></div>'+
         '<button class="mini'+(so.pick?" on":"")+'" style="'+(so.pick?"background:var(--p4);border-color:var(--p4)":"")+'" data-act="pin" data-v="'+i+'" title="BS">★</button></div>';
@@ -1044,7 +1082,8 @@ function viewImprove(){
     '<div class="matrix-wrap"><div>'+matrixSVG(S.improve.sols, document.documentElement.dataset.theme==="dark" || (!document.documentElement.dataset.theme && window.matchMedia("(prefers-color-scheme: dark)").matches))+'</div>'+
     '<div><h4 style="font-family:var(--f-mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink-3);margin-bottom:8px">'+L({it:"Step 4C · Le 3 migliori",en:"Step 4C · Top 3"})+'</h4>'+
       (picks.length? picks.map(function(s,i){
-        return '<div style="border-left:3px solid var(--p4);padding:5px 0 5px 10px;margin-bottom:8px"><div style="font-family:var(--f-mono);font-size:10px;color:var(--p4)">BS'+(i+1)+'</div>'+esc(s.t)+'</div>';
+        return '<div style="border-left:3px solid var(--p4);padding:5px 0 5px 10px;margin-bottom:8px"><div style="font-family:var(--f-mono);font-size:10px;color:var(--p4)">BS'+(i+1)+'</div>'+esc(s.t)+
+          (filled(s.causeRef)?'<div style="font-size:11px;color:var(--ink-3);margin-top:2px">→ '+esc(rootShort(+s.causeRef))+'</div>':'')+'</div>';
       }).join("") : '<p class="hint">'+L({it:"Nessuna soluzione selezionata. Usa il pin ★ accanto alle soluzioni: idealmente tre.",en:"No solution selected yet. Use the ★ pin next to a solution: three of them, ideally."})+'</p>')+
       '</div></div></div>';
   h += '<div class="card" style="--ph:'+p.color+'"><h3><span class="tag">STEP 4D</span>'+L({it:"Piano d'azione",en:"Improvement action plan"})+'</h3>'+
@@ -1292,6 +1331,7 @@ function viewGuide(){
 /* ============================ A3 report ============================ */
 function box(v, cls){ v = String(v||"").trim(); return '<div class="box '+(cls||"")+'">'+(v?nl(v):'<span class="empty">—</span>')+'</div>'; }
 function reportThumb(photo){ return photo ? '<img src="'+photo+'" alt="">' : ''; }
+function causeTagHTML(ref){ return filled(ref) ? '<br><span style="font-family:var(--f-mono);font-size:7px;color:#A8562A">→ PC'+(+ref+1)+'</span>' : ''; }
 function fishSVG(){
   var top = [0,1,2], bot = [3,4,5];
   var s = '<svg viewBox="0 0 740 300" role="img" aria-label="Ishikawa diagram">';
@@ -1389,13 +1429,13 @@ function viewReport(){
   h += '<div class="blk"><h5 style="background:'+"#B4552D"+'"><span>4 · IMPROVE</span><em>'+esc(S.dates.improve.s)+' → '+esc(S.dates.improve.f)+'</em>'+reportThumb(I.photo)+'</h5><div class="in">'+
     '<span class="st">Step 4A – '+L({it:"Soluzioni potenziali",en:"Potential solutions"})+'</span>'+
     '<table>'+I.sols.map(function(s,i){
-      return '<tr><td class="idc">PS'+(i+1)+'</td><td>'+(filled(s.t)?esc(s.t):'<span class="empty">—</span>')+'</td>'+
+      return '<tr><td class="idc">PS'+(i+1)+'</td><td>'+(filled(s.t)?esc(s.t):'<span class="empty">—</span>')+causeTagHTML(s.causeRef)+'</td>'+
         '<td style="width:64px;font-family:var(--f-mono);font-size:7.5px;color:#5B6763">I'+s.impact+' / E'+s.effort+'</td></tr>';
     }).join("")+'</table>'+
     '<span class="st">Step 4B – Benefit / Effort</span>'+ matrixSVG(I.sols,false) +
     '<span class="st">Step 4C – '+L({it:"Le 3 soluzioni scelte",en:"Top 3 selected solutions"})+'</span>'+
     '<table>'+[0,1,2].map(function(i){
-      return '<tr><td class="idc">BS'+(i+1)+'</td><td>'+(picked[i]?esc(picked[i].t):'<span class="empty">—</span>')+'</td></tr>';
+      return '<tr><td class="idc">BS'+(i+1)+'</td><td>'+(picked[i]?esc(picked[i].t)+causeTagHTML(picked[i].causeRef):'<span class="empty">—</span>')+'</td></tr>';
     }).join("")+'</table>'+
     '<span class="st">Step 4D – '+L({it:"Piano d'azione",en:"Action plan"})+'</span>'+
     '<table><tr><th>ID</th><th>'+L({it:"Azione",en:"Action"})+'</th><th>Owner</th><th>'+L({it:"Scad.",en:"Due"})+'</th><th>'+L({it:"Stato",en:"Status"})+'</th></tr>'+
@@ -1483,6 +1523,9 @@ document.addEventListener("input", function(e){
   if(t.dataset && t.dataset.act==="astatus"){
     S.improve.actions[+t.dataset.v].s = t.value; save(); render(true); return;
   }
+  if(t.dataset && t.dataset.act==="causeRef"){
+    S.improve.sols[+t.dataset.v].causeRef = t.value; save(); render(true); return;
+  }
   if(t.dataset && t.dataset.act==="slider"){
     var a = t.dataset.v.split(","); S.improve.sols[+a[0]][a[1]] = +t.value; save();
     var lab = t.parentNode.querySelector("label span:last-child"); if(lab) lab.textContent = t.value;
@@ -1539,6 +1582,7 @@ document.addEventListener("click", function(e){
     lane.types[j] = lane.types[j]==="decision" ? "process" : "decision";
     save(); render(true);
   }
+  else if(act==="toggleAcc"){ measureOpen = measureOpen===v ? "" : v; render(true); }
   else if(act==="addCause"){ S.measure.cats[+v].causes.push({t:"",v:0}); save(); render(true); focusLast(+v); }
   else if(act==="delCause"){ var a = v.split(","); S.measure.cats[+a[0]].causes.splice(+a[1],1); save(); render(true); }
   else if(act==="vote"){
