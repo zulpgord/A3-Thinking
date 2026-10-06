@@ -121,7 +121,7 @@ textarea{resize:vertical;min-height:64px}
 
 .card{background:var(--surface);backdrop-filter:blur(var(--glass-blur));-webkit-backdrop-filter:blur(var(--glass-blur));border:1px solid var(--glass-border);border-radius:var(--r-lg);padding:16px 18px 18px;margin-bottom:16px;box-shadow:var(--card-shadow)}
 .card > h3{font-size:15px;display:flex;align-items:center;gap:9px;margin-bottom:3px}
-.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;background:var(--ph);color:#fff;padding:2px 6px;border-radius:3px;flex:0 0 auto}
+.tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;background:var(--ph);color:#fff;padding:2px 6px;border-radius:5px;flex:0 0 auto;box-shadow:0 1px 0 rgba(255,255,255,.3) inset, 0 2px 5px -2px rgba(0,0,0,.3)}
 .hint{color:var(--ink-3);font-size:12.5px;margin:0 0 12px;max-width:70ch}
 .card.acc{padding:0;overflow:hidden}
 h3.acc-h3{margin:0;font-size:inherit;font-weight:inherit;display:block}
@@ -214,7 +214,7 @@ h3.acc-h3{margin:0;font-size:inherit;font-weight:inherit;display:block}
 .stsel.st-done{border-left-color:var(--ok);color:var(--ok)}
 .stsel.st-hold{border-left-color:var(--warn);color:var(--warn)}
 .stsel.st-cancelled{border-left-color:var(--ink-3);color:var(--ink-3);text-decoration:line-through}
-.pill{font-family:var(--f-mono);font-size:10.5px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);display:inline-block}
+.pill{font-family:var(--f-mono);font-size:10.5px;padding:3px 8px;border-radius:99px;border:1px solid var(--line);display:inline-block;box-shadow:0 1px 0 rgba(255,255,255,.4) inset}
 .pill.done{background:color-mix(in srgb,var(--ok) 16%,transparent);border-color:var(--ok);color:var(--ok)}
 .pill.open{background:color-mix(in srgb,var(--warn) 14%,transparent);border-color:var(--warn);color:var(--warn)}
 
@@ -271,7 +271,13 @@ h3.acc-h3{margin:0;font-size:inherit;font-weight:inherit;display:block}
 .tl-dates{display:flex;gap:8px;margin-top:3px}
 .tl-dates div{width:130px}
 .tl-empty{color:var(--ink-3);font-size:12.5px}
-.dash-grid{display:grid;grid-template-columns:1.4fr 1fr;gap:16px;align-items:start}
+.dash-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:start}
+.island-row{display:flex;gap:10px;flex-wrap:wrap;margin-bottom:20px}
+.island{background:linear-gradient(165deg,rgba(20,32,48,.94),rgba(8,14,22,.97));color:#fff;border-radius:99px;padding:9px 18px 9px 9px;display:flex;align-items:center;gap:10px;box-shadow:0 1px 0 rgba(255,255,255,.1) inset, 0 16px 32px -16px rgba(0,0,0,.55);flex:1 1 170px;min-width:160px;border:1px solid rgba(255,255,255,.08)}
+.island .ic{width:30px;height:30px;border-radius:50%;display:grid;place-items:center;flex:0 0 auto;font-size:13px;font-family:var(--f-mono);background:color-mix(in srgb,var(--isl) 80%,black 0%);box-shadow:0 0 0 1px rgba(255,255,255,.12) inset}
+.island .island-meta{display:flex;flex-direction:column;line-height:1.25;min-width:0}
+.island .island-meta b{font-family:var(--f-disp);font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.island .island-meta span{font-family:var(--f-mono);font-size:9px;letter-spacing:.06em;text-transform:uppercase;color:rgba(255,255,255,.5)}
 @media(max-width:900px){.dash-grid{grid-template-columns:1fr}}
 .saving-tile .amt{font-family:var(--f-disp);font-weight:700;font-size:30px;color:var(--ok);font-variant-numeric:tabular-nums}
 .saving-tile .amt small{display:block;font-family:var(--f-mono);font-size:10px;font-weight:400;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-3)}
@@ -582,7 +588,7 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",value:"6403",unit:"€",notes:"Stima: (6,4%-1,5%) × 594 spedizioni/trimestre × 220 € di costo medio per reclamo/rispedizione urgente. Annualizzato su 4 trimestri comparabili al Q2."};
   return s;
 }
-var APP_VERSION = "1.5.0";
+var APP_VERSION = "1.6.0";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 var measureOpen = "2a";
@@ -768,6 +774,20 @@ function timelineHTML(){
   if(min===max) max = min + 86400000;
   return tlAxis(min, max) + tlRows(spans, min, max);
 }
+function nextDeadline(){
+  var best = null;
+  S.improve.actions.forEach(function(a){
+    if(!filled(a.t) || !filled(a.d)) return;
+    if(ASTAT_K(a)==="done" || ASTAT_K(a)==="cancelled") return;
+    var d = parseDate(a.d);
+    if(d && (!best || d.getTime()<best.getTime())) best = d;
+  });
+  if(!best){
+    var cf = parseDate(S.dates.control.f);
+    if(cf) best = cf;
+  }
+  return best;
+}
 function viewDashboard(){
   var m = S.meta;
   var h = '<div class="phase-head"><div><h2>Dashboard</h2><p>'+
@@ -777,6 +797,16 @@ function viewDashboard(){
     (filled(m.title)?esc(m.title):L({it:"Titolo del problema non ancora definito",en:"Problem title not set yet"}))+'</div>'+
     '<div style="color:var(--ink-3);font-size:12.5px;margin-top:2px">'+esc(m.team)+(m.team&&m.leader?" · ":"")+esc(m.leader)+'</div></div>'+
     '<button class="btn" data-act="go" data-v="home">'+L({it:"Anagrafica progetto",en:"Project charter"})+'</button></div>';
+  var svIsl = S.control.saving, svDispIsl = savingDisplay(svIsl);
+  var openActions = S.improve.actions.filter(function(a){ var k=ASTAT_K(a); return filled(a.t) && k!=="done" && k!=="cancelled"; }).length;
+  var nd = nextDeadline();
+  var ndTxt = nd ? nd.toLocaleDateString(LANG==="it"?"it-IT":"en-GB",{day:"2-digit",month:"short"}) : "—";
+  h += '<div class="island-row">'+
+    '<div class="island" style="--isl:#2471A3"><span class="ic">%</span><span class="island-meta"><b>'+overall()+'%</b><span>'+L({it:"Completamento",en:"Completion"})+'</span></span></div>'+
+    '<div class="island" style="--isl:#1E8449"><span class="ic">€</span><span class="island-meta"><b>'+(svDispIsl||"—")+'</b><span>'+L({it:"Saving",en:"Saving"})+'</span></span></div>'+
+    '<div class="island" style="--isl:#B4552D"><span class="ic">!</span><span class="island-meta"><b>'+openActions+'</b><span>'+L({it:"Azioni aperte",en:"Open actions"})+'</span></span></div>'+
+    '<div class="island" style="--isl:#5B4FBE"><span class="ic">📅</span><span class="island-meta"><b>'+ndTxt+'</b><span>'+L({it:"Prossima scadenza",en:"Next deadline"})+'</span></span></div>'+
+    '</div>';
   h += '<div class="dash-cards">'+PHASES.map(function(p){
     var v = pct(p.key);
     return '<button class="dash-card" style="--ph:'+p.color+'" data-act="go" data-v="'+p.key+'">'+
