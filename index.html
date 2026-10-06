@@ -1,5 +1,5 @@
 <!doctype html>
-<html lang="it">
+<html lang="it" data-theme="light">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -261,13 +261,16 @@ h3.acc-h3{margin:0;font-size:inherit;font-weight:inherit;display:block}
 .tl-tick span{font-family:var(--f-mono);font-size:9px;letter-spacing:.02em;color:var(--ink-3);white-space:nowrap;margin-bottom:2px}
 .tl-today{position:absolute;top:0;bottom:0;width:1px;background:var(--warn);z-index:2}
 .tl-today em{position:absolute;top:-13px;left:2px;font-style:normal;font-family:var(--f-mono);font-size:8.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--warn);white-space:nowrap}
-.tl-row{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center}
-.tl-row .lbl{font-family:var(--f-disp);font-weight:600;font-size:12.5px;color:var(--ph)}
-.tl-track{position:relative;height:22px;background:var(--surface-2);border-radius:4px;overflow:hidden}
-.tl-grid{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.06)}
+.tl-row{display:grid;grid-template-columns:120px 1fr;gap:10px;align-items:center;padding:5px 8px;border-radius:12px;transition:background .15s ease}
+.tl-row:hover{background:color-mix(in srgb,var(--surface-2) 70%,transparent)}
+.tl-row .lbl{font-family:var(--f-disp);font-weight:600;font-size:12.5px;color:var(--ink);display:flex;align-items:center;gap:6px}
+.tl-row .lbl i{display:block;width:8px;height:8px;border-radius:50%;background:var(--ph);flex:0 0 auto;box-shadow:0 0 0 3px color-mix(in srgb,var(--ph) 22%,transparent)}
+.tl-track{position:relative;height:28px;background:var(--surface-2);border-radius:99px;overflow:hidden;box-shadow:0 1px 3px rgba(17,56,127,.08) inset}
+.tl-grid{position:absolute;top:0;bottom:0;width:1px;background:rgba(0,0,0,.07)}
 :root[data-theme="dark"] .tl-grid{background:rgba(255,255,255,.08)}
 @media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .tl-grid{background:rgba(255,255,255,.08)}}
-.tl-bar{position:absolute;top:2px;bottom:2px;background:var(--ph);border-radius:3px;min-width:6px;z-index:1}
+.tl-bar{position:absolute;top:3px;bottom:3px;border-radius:99px;min-width:12px;z-index:1;overflow:hidden;box-shadow:0 1px 4px -1px rgba(17,56,127,.25)}
+.tl-fill{position:absolute;top:0;left:0;bottom:0;border-radius:99px}
 .tl-dates{display:flex;gap:8px;margin-top:3px}
 .tl-dates div{width:130px}
 .tl-empty{color:var(--ink-3);font-size:12.5px}
@@ -588,7 +591,7 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",value:"6403",unit:"€",notes:"Stima: (6,4%-1,5%) × 594 spedizioni/trimestre × 220 € di costo medio per reclamo/rispedizione urgente. Annualizzato su 4 trimestri comparabili al Q2."};
   return s;
 }
-var APP_VERSION = "1.6.0";
+var APP_VERSION = "1.7.0";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 var measureOpen = "2a";
@@ -753,10 +756,12 @@ function tlRows(spans, min, max){
       if(f<s) f = s;
       var width = Math.max((f-s)/(max-min)*100, 1.2);
       var left = Math.min(Math.max((s-min)/(max-min)*100, 0), 100-width);
-      bar = '<div class="tl-bar" style="left:'+left.toFixed(2)+'%;width:'+width.toFixed(2)+'%;background:'+x.p.color+'"></div>';
+      var donePct = pct(x.p.key);
+      bar = '<div class="tl-bar" style="left:'+left.toFixed(2)+'%;width:'+width.toFixed(2)+'%;background:color-mix(in srgb,'+x.p.color+' 30%, transparent)">'+
+        '<div class="tl-fill" style="width:'+donePct+'%;background:'+x.p.color+'"></div></div>';
     }
     if(min!=null) grid = tlGridlines(min, max);
-    return '<div class="tl-row"><div class="lbl" style="color:'+x.p.color+'">'+L(x.p.name)+'</div><div>'+
+    return '<div class="tl-row" style="--ph:'+x.p.color+'"><div class="lbl"><i></i>'+L(x.p.name)+'</div><div>'+
       '<div class="tl-track">'+grid+bar+'</div>'+
       '<div class="tl-dates"><div>'+inp("dates."+x.p.key+".s","","date")+'</div><div>'+inp("dates."+x.p.key+".f","","date")+'</div></div>'+
       '</div></div>';
@@ -1599,9 +1604,8 @@ document.addEventListener("click", function(e){
   if(act==="go"){ current = v; render(); }
   else if(act==="lang"){ LANG = v; save(); render(); }
   else if(act==="theme"){
-    var r = document.documentElement, cur = r.dataset.theme;
-    var sysDark = window.matchMedia("(prefers-color-scheme: dark)").matches;
-    r.dataset.theme = cur ? (cur==="dark"?"light":"dark") : (sysDark?"light":"dark");
+    var r = document.documentElement;
+    r.dataset.theme = r.dataset.theme==="dark" ? "light" : "dark";
     if(current==="improve"||current==="report") render();
   }
   else if(act==="sqdc"){ S.meta.priority = (S.meta.priority===v?"":v); save(); render(true); }
