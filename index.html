@@ -109,10 +109,11 @@ textarea{resize:vertical;min-height:64px}
 .tag{font-family:var(--f-mono);font-size:10px;letter-spacing:.06em;background:var(--ph);color:#fff;padding:2px 6px;border-radius:3px;flex:0 0 auto}
 .hint{color:var(--ink-3);font-size:12.5px;margin:0 0 12px;max-width:70ch}
 .card.acc{padding:0;overflow:hidden}
-.acc-head{width:100%;background:transparent;border:0;padding:16px 18px;margin:0;display:flex;align-items:center;gap:10px;cursor:pointer;text-align:left;font:inherit;color:inherit}
+h3.acc-h3{margin:0;font-size:inherit;font-weight:inherit;display:block}
+.acc-head{width:100%;background:transparent;border:0;padding:16px 18px;margin:0;display:flex;align-items:center;gap:10px;flex-wrap:wrap;row-gap:4px;cursor:pointer;text-align:left;font:inherit;color:inherit}
 .acc-head:hover{background:var(--surface-2)}
-.acc-title{font-family:var(--f-disp);font-size:15px;font-weight:600}
-.acc-sub{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);white-space:nowrap}
+.acc-title{font-family:var(--f-disp);font-size:15px;font-weight:600;flex:1 1 140px;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.acc-sub{margin-left:auto;font-family:var(--f-mono);font-size:11px;color:var(--ink-3);white-space:nowrap;flex:0 1 auto;overflow:hidden;text-overflow:ellipsis}
 .acc-chev{font-family:var(--f-mono);font-size:17px;color:var(--ink-3);flex:0 0 auto;width:16px;text-align:center}
 .acc-body{padding:0 18px 18px}
 .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
@@ -565,7 +566,7 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",value:"6403",unit:"€",notes:"Stima: (6,4%-1,5%) × 594 spedizioni/trimestre × 220 € di costo medio per reclamo/rispedizione urgente. Annualizzato su 4 trimestri comparabili al Q2."};
   return s;
 }
-var APP_VERSION = "1.4.0";
+var APP_VERSION = "1.4.1";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 var measureOpen = "2a";
@@ -664,11 +665,11 @@ function coach(title, purpose, how, traps){
 function accCard(key, tag, title, bodyHtml, color, summary){
   var open = measureOpen===key;
   return '<div class="card acc" style="--ph:'+color+'">'+
-    '<button type="button" class="acc-head" data-act="toggleAcc" data-v="'+key+'" aria-expanded="'+open+'">'+
+    '<h3 class="acc-h3"><button type="button" class="acc-head" data-act="toggleAcc" data-v="'+key+'" aria-expanded="'+open+'">'+
       '<span class="tag">'+tag+'</span><span class="acc-title">'+esc(title)+'</span>'+
       (summary?'<span class="acc-sub">'+esc(summary)+'</span>':'')+
       '<span class="acc-chev">'+(open?'−':'+')+'</span>'+
-    '</button>'+
+    '</button></h3>'+
     (open ? '<div class="acc-body">'+bodyHtml+'</div>' : '')+
   '</div>';
 }
