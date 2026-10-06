@@ -428,6 +428,7 @@ var LANG = "it";
 function L(o){ return o[LANG] !== undefined ? o[LANG] : o.en; }
 function esc(s){ return String(s==null?"":s).replace(/[&<>"']/g,function(c){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];}); }
 function nl(s){ return esc(s).replace(/\n/g,"<br>"); }
+function trunc(s, n){ s = String(s||""); return s.length>n ? s.slice(0,n)+"…" : s; }
 
 /* ============================ model ============================ */
 var PHASES = [
@@ -566,7 +567,7 @@ function demo(){
   s.control.saving={metric:"Reclami e rispedizioni urgenti",value:"6403",unit:"€",notes:"Stima: (6,4%-1,5%) × 594 spedizioni/trimestre × 220 € di costo medio per reclamo/rispedizione urgente. Annualizzato su 4 trimestri comparabili al Q2."};
   return s;
 }
-var APP_VERSION = "1.4.1";
+var APP_VERSION = "1.4.2";
 var KEY = "a3nav.v1";
 var S = blank(), current = "dashboard";
 var measureOpen = "2a";
@@ -866,7 +867,7 @@ function viewMeasure(){
      L({it:"Confondere causa e sintomo. «Il cliente si lamenta» è un sintomo.",en:"Mixing cause and symptom. “The customer complains” is a symptom."}),
      L({it:"Votare senza aver prima raccolto: si vota quello che si è detto per ultimo.",en:"Voting before collecting: people vote for whatever was said last."})]);
   var nSteps = S.measure.steps.length;
-  var body2A = '<p class="hint">'+L({it:"Dall'innesco al risultato consegnato. Verbo + oggetto, poche parole.",en:"From trigger to delivered result. Verb + object, few words."})+'</p>'+
+  var body2A = measureOpen!=="2a" ? "" : '<p class="hint">'+L({it:"Dall'innesco al risultato consegnato. Verbo + oggetto, poche parole.",en:"From trigger to delivered result. Verb + object, few words."})+'</p>'+
     '<div class="pflow" style="grid-template-columns:repeat('+nSteps+',1fr)">'+S.measure.steps.map(function(s,i){
       return '<div class="pstep"><b>'+(i+1)+'</b>'+ta("measure.steps."+i,"",2)+
         (nSteps>3?'<button class="mini" data-act="delStep" data-v="'+i+'" title="'+L({it:"Elimina fase",en:"Delete step"})+'" style="margin-top:4px">×</button>':'')+'</div>';
@@ -875,7 +876,7 @@ function viewMeasure(){
   h += accCard("2a", "STEP 2A", L({it:"Le macro-fasi del processo",en:"The main process steps"}), body2A, p.color,
     S.measure.steps.filter(filled).length+"/"+nSteps+" "+L({it:"fasi",en:"steps"}));
 
-  var body2B = '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ogni macro-fase. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano. Il pulsante ◇ marca uno step come punto di decisione. Se preferisci, in alternativa (o in aggiunta) puoi allegare la foto di una mappatura fatta a mano.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs. The ◇ button marks a step as a decision point. If you prefer, as an alternative (or in addition) you can attach a photo of a mapping done by hand."})+'</p>'+
+  var body2B = measureOpen!=="2b" ? "" : '<p class="hint">'+L({it:"Una riga per reparto, una colonna per ogni macro-fase. Lascia vuoto dove il reparto non interviene: i vuoti raccontano i passaggi di mano. Il pulsante ◇ marca uno step come punto di decisione. Se preferisci, in alternativa (o in aggiunta) puoi allegare la foto di una mappatura fatta a mano.",en:"One row per department, one column per main step. Leave blanks where the department does not act: the blanks reveal the hand-offs. The ◇ button marks a step as a decision point. If you prefer, as an alternative (or in addition) you can attach a photo of a mapping done by hand."})+'</p>'+
     photoField("measure.swimlanePhoto")+
     '<div style="margin-top:14px">'+
     S.measure.lanes.map(function(l,i){
@@ -895,7 +896,7 @@ function viewMeasure(){
   var totVotes = S.measure.cats.reduce(function(a,c){return a+c.causes.reduce(function(b,x){return b+(x.v||0);},0);},0);
   var totCauses = S.measure.cats.reduce(function(a,c){return a+c.causes.filter(function(x){return filled(x.t);}).length;},0);
   var fishEffect = S.define.restated || S.define.initial;
-  var body2C = '<p class="hint">'+L({it:"Sei categorie (6M). Aggiungi le cause e assegna i voti del team: ● aggiunge un voto, − lo toglie. Voti assegnati: ",en:"Six categories (6M). Add causes and assign the team's votes: ● adds a vote, − removes one. Votes cast: "})+totVotes+'</p>'+
+  var body2C = measureOpen!=="2c" ? "" : '<p class="hint">'+L({it:"Sei categorie (6M). Aggiungi le cause e assegna i voti del team: ● aggiunge un voto, − lo toglie. Voti assegnati: ",en:"Six categories (6M). Add causes and assign the team's votes: ● adds a vote, − removes one. Votes cast: "})+totVotes+'</p>'+
     '<div class="fish-problem"><b>'+L({it:"Problema in analisi (testa del pesce)",en:"Problem under analysis (fish head)"})+'</b>'+
     (filled(fishEffect) ? esc(fishEffect) : '<span style="color:var(--ink-3)">'+L({it:"— vai in Define e scrivi l'enunciato del problema —",en:"— go to Define and write the problem statement —"})+'</span>')+'</div>'+
     '<div class="fb">'+CATS.map(function(c,ci){
@@ -918,10 +919,12 @@ function viewMeasure(){
     totCauses+" "+L({it:"cause",en:"causes"})+", "+totVotes+" "+L({it:"voti",en:"votes"}));
 
   var ranked = [];
-  S.measure.cats.forEach(function(c,ci){ c.causes.forEach(function(x){ if(filled(x.t)) ranked.push({t:x.t,v:x.v||0,c:L(CATS[ci])}); }); });
-  ranked.sort(function(a,b){return b.v-a.v;});
-  var paretoChart = paretoSVG(ranked, false);
-  var body2D = '<p class="hint">'+L({it:"Clicca una causa della classifica per assegnarla a PC1, PC2, PC3. Queste tre passano ad Analyze.",en:"Click a cause in the ranking to assign it to PC1, PC2, PC3. These three carry over into Analyze."})+'</p>'+
+  var body2D = "";
+  if(measureOpen==="2d"){
+    S.measure.cats.forEach(function(c,ci){ c.causes.forEach(function(x){ if(filled(x.t)) ranked.push({t:x.t,v:x.v||0,c:L(CATS[ci])}); }); });
+    ranked.sort(function(a,b){return b.v-a.v;});
+    var paretoChart = paretoSVG(ranked, false);
+    body2D = '<p class="hint">'+L({it:"Clicca una causa della classifica per assegnarla a PC1, PC2, PC3. Queste tre passano ad Analyze.",en:"Click a cause in the ranking to assign it to PC1, PC2, PC3. These three carry over into Analyze."})+'</p>'+
     (paretoChart ? '<div class="fishwrap" style="margin-bottom:14px">'+paretoChart+'</div>'+
       '<p class="hint" style="margin-top:-6px">'+L({it:"Pareto: barre = voti per causa, linea = % cumulata. La soglia all'80% separa le poche cause che spiegano la maggior parte del problema.",en:"Pareto: bars = votes per cause, line = cumulative %. The 80% threshold marks the few causes that explain most of the problem."})+'</p>' : '')+
     '<div class="grid2"><div>'+
@@ -934,6 +937,7 @@ function viewMeasure(){
     '</div><div>'+[0,1,2].map(function(i){
       return '<div class="f"><label>PC'+(i+1)+'</label>'+inp("measure.picks."+i, L({it:"causa potenziale "+(i+1),en:"potential cause "+(i+1)}))+'</div>';
     }).join("")+'</div></div>';
+  }
   h += accCard("2d", "STEP 2D", L({it:"Dotmocracy – le 3 cause potenziali",en:"Dotmocracy – top 3 potential causes"}), body2D, p.color,
     S.measure.picks.filter(filled).length+"/3 "+L({it:"selezionate",en:"picked"}));
   return h + gate("measure");
@@ -1001,7 +1005,7 @@ function paretoSVG(ranked, dark){
     var lx=x+bw/2, ly=padT+plotH-(pct/100*plotH);
     pts.push([lx,ly,pct]);
     var labelY = padT+plotH+12;
-    labels += '<text x="'+lx.toFixed(1)+'" y="'+labelY+'" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="'+soft+'" transform="rotate(-35 '+lx.toFixed(1)+' '+labelY+')">'+esc(it.t.slice(0,24))+(it.t.length>24?"…":"")+'</text>';
+    labels += '<text x="'+lx.toFixed(1)+'" y="'+labelY+'" text-anchor="end" font-family="IBM Plex Sans, sans-serif" font-size="9" fill="'+soft+'" transform="rotate(-35 '+lx.toFixed(1)+' '+labelY+')">'+esc(trunc(it.t,24))+'</text>';
   });
   var linePath = pts.map(function(pt,i){return (i===0?"M":"L")+pt[0].toFixed(1)+","+pt[1].toFixed(1);}).join(" ");
   var dots = pts.map(function(pt){
@@ -1052,7 +1056,7 @@ function matrixSVG(sols, dark){
 function rootShort(i){
   var ch = S.analyze.chains[i];
   var txt = (ch && filled(ch.root)) ? ch.root : (S.measure.picks[i]||"");
-  return "PC"+(i+1)+(filled(txt) ? ": "+txt.slice(0,34)+(txt.length>34?"…":"") : "");
+  return "PC"+(i+1)+(filled(txt) ? ": "+trunc(txt,34) : "");
 }
 function viewImprove(){
   var p = PHASES[3];
@@ -1349,7 +1353,7 @@ function fishSVG(){
     var cs = cat.causes.filter(function(x){return filled(x.t);}).sort(function(a,b){return (b.v||0)-(a.v||0);}).slice(0,3);
     cs.forEach(function(x,j){
       var ty = up ? yBox+36+j*13 : yBox-10-((cs.length-1-j)*13);
-      g += '<text x="'+(xBox+2)+'" y="'+ty+'" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="#3C4744">• '+esc(x.t.slice(0,38))+(x.t.length>38?"…":"")+'</text>';
+      g += '<text x="'+(xBox+2)+'" y="'+ty+'" font-family="IBM Plex Sans, sans-serif" font-size="8.5" fill="#3C4744">• '+esc(trunc(x.t,38))+'</text>';
     });
     return g;
   }
@@ -1362,7 +1366,7 @@ function fishSVG(){
     '<div xmlns="http://www.w3.org/1999/xhtml" style="font-family:\'IBM Plex Sans\',sans-serif;font-size:9px;line-height:1.28;color:#fff;overflow:hidden">'+
     '<div style="font-family:\'IBM Plex Mono\',monospace;font-size:7px;letter-spacing:.09em;opacity:.75;margin-bottom:3px;text-transform:uppercase">'+
     esc(L({it:"Problema analizzato",en:"Problem analysed"}))+'</div>'+
-    '<div style="font-weight:600">'+(filled(eff)?esc(eff.slice(0,150))+(eff.length>150?"…":""):"—")+'</div></div></foreignObject>';
+    '<div style="font-weight:600">'+(filled(eff)?esc(trunc(eff,150)):"—")+'</div></div></foreignObject>';
   return s + '</svg>';
 }
 function viewReport(){
